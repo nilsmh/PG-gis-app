@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/pg-gis-app/static/css/main.073c9b0a.css",
+    "main.js": "/pg-gis-app/static/js/main.12bda698.js",
+    "static/js/787.ba260547.chunk.js": "/pg-gis-app/static/js/787.ba260547.chunk.js",
+    "static/media/logo.svg": "/pg-gis-app/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/pg-gis-app/index.html",
+    "main.073c9b0a.css.map": "/pg-gis-app/static/css/main.073c9b0a.css.map",
+    "main.12bda698.js.map": "/pg-gis-app/static/js/main.12bda698.js.map",
+    "787.ba260547.chunk.js.map": "/pg-gis-app/static/js/787.ba260547.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.073c9b0a.css",
+    "static/js/main.12bda698.js"
+  ]
+}

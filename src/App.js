@@ -4,8 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Sidebar from './components/Sidebar';
 
-mapboxgl.accessToken =
-  'pk.eyJ1Ijoibmlsc21oIiwiYSI6ImNsZWxzY2tmdDB2YWgzcW1sZXlzNndpZTYifQ.4QNdi0RRgB1sCd0tK7PrOQ';
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 function App() {
   const mapContainer = useRef(null);

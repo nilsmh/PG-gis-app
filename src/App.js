@@ -5,7 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import Sidebar from './components/Sidebar';
 
 mapboxgl.accessToken =
-  'pk.eyJ1Ijoibmlsc21oIiwiYSI6ImNsZWxsd3cwdjB3ZHkzb3FucmZ6cngyMmYifQ.2pFWmR3p5Xht28U7KQZ1TA';
+  'pk.eyJ1IjoibGF1dnNuZXMxIiwiYSI6ImNsZWl4ZzQ3ZjA0ZzYzcm51em0wNmxvcTUifQ.9TpjxrT5CFvtDZzuP9QzQA';
 
 function App() {
   const mapContainer = useRef(null);

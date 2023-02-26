@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/PG-gis-app/static/css/main.073c9b0a.css",
-    "main.js": "/PG-gis-app/static/js/main.9c295b44.js",
+    "main.css": "/PG-gis-app/static/css/main.8af6c1bc.css",
+    "main.js": "/PG-gis-app/static/js/main.a8ef3774.js",
     "static/js/787.ba260547.chunk.js": "/PG-gis-app/static/js/787.ba260547.chunk.js",
-    "static/media/logo.svg": "/PG-gis-app/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/PG-gis-app/index.html",
-    "main.073c9b0a.css.map": "/PG-gis-app/static/css/main.073c9b0a.css.map",
-    "main.9c295b44.js.map": "/PG-gis-app/static/js/main.9c295b44.js.map",
+    "main.8af6c1bc.css.map": "/PG-gis-app/static/css/main.8af6c1bc.css.map",
+    "main.a8ef3774.js.map": "/PG-gis-app/static/js/main.a8ef3774.js.map",
     "787.ba260547.chunk.js.map": "/PG-gis-app/static/js/787.ba260547.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.073c9b0a.css",
-    "static/js/main.9c295b44.js"
+    "static/css/main.8af6c1bc.css",
+    "static/js/main.a8ef3774.js"
   ]
 }

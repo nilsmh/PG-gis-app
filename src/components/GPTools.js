@@ -5,12 +5,50 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import BufferModal from './BufferModal';
+import IntersectModal from './IntersectModal';
 
 export default function GPTools() {
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    buffer: false,
+    intersect: false,
+    difference: false,
+    featureExtractor: false,
+  });
 
-  const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
+  const handleOpenModal = (modalType) => {
+    // console.log(event.target.value);
+    switch (modalType) {
+      case 'buffer':
+        setOpenModal({
+          ...openModal,
+          buffer: true,
+        });
+        break;
+      case 'intersect':
+        setOpenModal({
+          ...openModal,
+          intersect: true,
+        });
+        break;
+    }
+  };
+
+  const handleCloseModal = (modalType) => {
+    switch (modalType) {
+      case 'buffer':
+        setOpenModal({
+          ...openModal,
+          buffer: false,
+        });
+        break;
+      case 'intersect':
+        setOpenModal({
+          ...openModal,
+          intersect: false,
+        });
+        break;
+    }
+  };
 
   return (
     <div
@@ -34,11 +72,20 @@ export default function GPTools() {
         }}
       >
         <Divider />
-        <ListItem button onClick={handleOpenModal}>
+        <ListItem
+          button
+          value="buffer"
+          onClick={() => handleOpenModal('buffer')}
+        >
           <ListItemText primary="Buffer" />
         </ListItem>
         <Divider />
-        <ListItem button divider onClick={handleOpenModal}>
+        <ListItem
+          button
+          divider
+          value="intersect"
+          onClick={() => handleOpenModal('intersect')}
+        >
           <ListItemText primary="Intersection" />
         </ListItem>
         <ListItem button>
@@ -54,7 +101,14 @@ export default function GPTools() {
         </ListItem>
         <Divider />
       </List>
-      <BufferModal open={openModal} closeModal={handleCloseModal} />
+      <BufferModal
+        open={openModal.buffer}
+        closeModal={() => handleCloseModal('buffer')}
+      />
+      <IntersectModal
+        open={openModal.intersect}
+        closeModal={() => handleCloseModal('intersect')}
+      />
     </div>
   );
 }

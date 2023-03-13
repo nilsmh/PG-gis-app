@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { addLayer } from '../redux/layers-slice';
 import * as turf from '@turf/turf';
-import bufferCalc from '../utils/BufferCalc';
+import intersectCalc from '../utils/IntersectCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
 
 const style = {
@@ -27,11 +27,10 @@ const style = {
   borderRadius: 2,
 };
 
-export default function BufferModal({ open, closeModal }) {
-  const [invalidDistance, setInvalidDistance] = useState(false);
+export default function IntersectModal({ open, closeModal }) {
   const [currentLayer, setCurrentLayer] = useState({
-    layer: turf.featureCollection([]),
-    distance: 0,
+    layerA: turf.featureCollection([]),
+    layerB: turf.featureCollection([]),
     output: '',
   });
   const layers = useSelector((state) => state.layers);
@@ -42,25 +41,39 @@ export default function BufferModal({ open, closeModal }) {
     dispatch(addLayer(newLayer));
   };
 
-  const handleChangeCurrentLayer = (event) => {
-    const updatedLayer = {
-      ...currentLayer,
-      layer: event.target.value.geom,
-    };
-    setCurrentLayer(updatedLayer);
-  };
-
-  const handleChangeDistance = (event) => {
-    const regex = /^[0-9\b]+$/;
-    if (regex.test(event.target.value)) {
-      setInvalidDistance(false);
+  const handleChangeLayerA = (event) => {
+    if (
+      event.target.value.geom.features[0].geometry.type !== 'Polygon' &&
+      event.target.value.geom.features[0].geometry.type !== 'MultiPolygon'
+    ) {
+      snackBarAlert(
+        'The layers have to be either a polygon or a multipolygon',
+        'error'
+      );
+    } else {
       const updatedLayer = {
         ...currentLayer,
-        distance: event.target.value,
+        layerA: event.target.value.geom,
       };
       setCurrentLayer(updatedLayer);
+    }
+  };
+
+  const handleChangeLayerB = (event) => {
+    if (
+      event.target.value.geom.features[0].geometry.type !== 'Polygon' &&
+      event.target.value.geom.features[0].geometry.type !== 'MultiPolygon'
+    ) {
+      snackBarAlert(
+        'The layers have to be either a polygon or a multipolygon',
+        'error'
+      );
     } else {
-      setInvalidDistance(true);
+      const updatedLayer = {
+        ...currentLayer,
+        layerB: event.target.value.geom,
+      };
+      setCurrentLayer(updatedLayer);
     }
   };
 
@@ -72,12 +85,20 @@ export default function BufferModal({ open, closeModal }) {
     setCurrentLayer(updatedLayer);
   };
 
+  const cleanCurrentLayer = () => {
+    setCurrentLayer({
+      layerA: turf.featureCollection([]),
+      layerB: turf.featureCollection([]),
+      output: '',
+    });
+  };
+
   const validateInput = () => {
-    if (!currentLayer.layer.features.length) {
-      snackBarAlert('Invalid input layer. Please select a layer.', 'error');
+    if (!currentLayer.layerA.features.length) {
+      snackBarAlert('Invalid input layer A. Please select a layer.', 'error');
     }
-    if (invalidDistance || !currentLayer.distance) {
-      snackBarAlert('Invalid distance. Only numbers allow.', 'error');
+    if (!currentLayer.layerB.features.length) {
+      snackBarAlert('Invalid input layer B. Please select a layer.', 'error');
     }
     if (!currentLayer.output) {
       snackBarAlert(
@@ -87,23 +108,28 @@ export default function BufferModal({ open, closeModal }) {
     }
   };
 
-  const addBufferLayer = () => {
+  const addIntersectLayer = () => {
     let success = Boolean(
-      currentLayer.layer.features.length &&
-        !invalidDistance &&
+      currentLayer.layerA.features.length &&
+        currentLayer.layerB.features.length &&
         currentLayer.output
     );
     switch (success) {
       case true:
         const nextKey = layers.slice(-1)[0].key + 1;
-        const bufferLayer = bufferCalc(currentLayer, nextKey);
-        handleAddLayer(bufferLayer);
-        snackBarAlert('Successfully created ' + currentLayer.output, 'success');
-        setCurrentLayer({
-          layer: turf.featureCollection([]),
-          distance: 0,
-          output: '',
-        });
+
+        const intersectLayer = intersectCalc(currentLayer, nextKey);
+        if (!intersectLayer) {
+          snackBarAlert('The layers do not overlap', 'error');
+        } else {
+          handleAddLayer(intersectLayer);
+          snackBarAlert(
+            'Successfully created ' + currentLayer.output,
+            'success'
+          );
+        }
+
+        cleanCurrentLayer();
         break;
       case false:
         validateInput();
@@ -120,33 +146,55 @@ export default function BufferModal({ open, closeModal }) {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Buffer
+          Intersect
         </Typography>
         <FormControl
           required
           fullWidth={true}
-          style={{ marginTop: 20, height: 200 }}
+          style={{ marginTop: 20, height: 50 }}
         >
-          <InputLabel>Choose a Layer</InputLabel>
-          <Select label="Choose a Layer" onChange={handleChangeCurrentLayer}>
+          <InputLabel>Choose a Layer A</InputLabel>
+          <Select label="Choose a Layer A" onChange={handleChangeLayerA}>
             {layers
               ? layers.map((layer) => {
                   return (
-                    <MenuItem key={layer.key} value={layer}>
+                    <MenuItem
+                      disabled={
+                        layer.geom === currentLayer.layerB ? true : false
+                      }
+                      key={layer.key}
+                      value={layer}
+                    >
                       {layer.name.replace('.geojson', '')}
                     </MenuItem>
                   );
                 })
               : null}
           </Select>
-          <TextField
-            error={invalidDistance}
-            onChange={handleChangeDistance}
-            style={{ marginTop: 10, width: '20%' }}
-            id="standard-basic"
-            label="Distance [m]"
-            variant="standard"
-          />
+        </FormControl>
+        <FormControl
+          required
+          fullWidth={true}
+          style={{ marginTop: 30, height: 120 }}
+        >
+          <InputLabel>Choose a Layer B</InputLabel>
+          <Select label="Choose a Layer B" onChange={handleChangeLayerB}>
+            {layers
+              ? layers.map((layer) => {
+                  return (
+                    <MenuItem
+                      disabled={
+                        layer.geom === currentLayer.layerA ? true : false
+                      }
+                      key={layer.key}
+                      value={layer}
+                    >
+                      {layer.name.replace('.geojson', '')}
+                    </MenuItem>
+                  );
+                })
+              : null}
+          </Select>
           <TextField
             style={{ marginTop: 10 }}
             value={currentLayer.output}
@@ -156,6 +204,7 @@ export default function BufferModal({ open, closeModal }) {
             variant="standard"
           />
         </FormControl>
+
         <Box
           style={{
             display: 'flex',
@@ -167,7 +216,7 @@ export default function BufferModal({ open, closeModal }) {
           <Button
             variant="contained"
             style={{ marginRight: 10 }}
-            onClick={addBufferLayer}
+            onClick={addIntersectLayer}
           >
             Calculate
           </Button>

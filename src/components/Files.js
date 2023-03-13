@@ -10,6 +10,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import randomColor from 'randomcolor';
 import { useSelector, useDispatch } from 'react-redux';
 import { addLayer, removeLayer, updateLayer } from '../redux/layers-slice';
+import createLayer from '../utils/CreateLayer';
 
 export default function Files() {
   const [fileList, setFileList] = useState([]);
@@ -69,14 +70,7 @@ export default function Files() {
       reader.onload = () => {
         const fileContents = reader.result;
         const geojson = JSON.parse(fileContents);
-        const color = randomColor();
-        const newLayer = {
-          key: key,
-          name: file.name,
-          geom: geojson,
-          color: color,
-          visibility: true,
-        };
+        const newLayer = createLayer(key, file.name, geojson);
         handleAddLayer(newLayer);
         key++;
       };

@@ -16,7 +16,6 @@ export default function GPTools() {
   });
 
   const handleOpenModal = (modalType) => {
-    // console.log(event.target.value);
     switch (modalType) {
       case 'buffer':
         setOpenModal({
@@ -68,18 +67,18 @@ export default function GPTools() {
         sx={{
           width: '100%',
           bgcolor: '#ADD8E6',
-          marginTop: -1,
+          marginBottom: 2,
         }}
       >
         <Divider />
         <ListItem
           button
+          divider
           value="buffer"
           onClick={() => handleOpenModal('buffer')}
         >
           <ListItemText primary="Buffer" />
         </ListItem>
-        <Divider />
         <ListItem
           button
           divider
@@ -88,18 +87,18 @@ export default function GPTools() {
         >
           <ListItemText primary="Intersection" />
         </ListItem>
-        <ListItem button>
+        <ListItem divider button>
           <ListItemText primary="Difference" />
         </ListItem>
-        <Divider />
-        <ListItem button>
+        <ListItem divider button>
           <ListItemText primary="Feature Extractor" />
         </ListItem>
-        <Divider />
-        <ListItem button>
-          <ListItemText primary="Area" />
+        <ListItem divider button>
+          <ListItemText primary="Union" />
         </ListItem>
-        <Divider />
+        <ListItem divider button>
+          <ListItemText primary="Clip" />
+        </ListItem>
       </List>
       <BufferModal
         open={openModal.buffer}

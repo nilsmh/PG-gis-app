@@ -130,7 +130,6 @@ export default function Files() {
           sx={{
             width: '100%',
             bgcolor: '#ADD8E6',
-            marginTop: -1,
           }}
         >
           <Divider />

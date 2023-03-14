@@ -39,7 +39,10 @@ export default function MapView() {
     });
     map.on('load', () => {
       layers.forEach((layer) => {
-        if (layer.geom.features[0].geometry.type === 'Polygon') {
+        if (
+          layer.geom.features[0].geometry.type === 'Polygon' ||
+          layer.geom.features[0].geometry.type === 'MultiPolygon'
+        ) {
           map.addLayer({
             id: layer.key.toString(),
             type: 'fill',

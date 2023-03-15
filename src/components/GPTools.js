@@ -5,7 +5,8 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import BufferModal from './BufferModal';
-import GPAnalysisModal from './GPAnalysisModal';
+import TwoLayerAnalysisModal from './TwoLayerAnalysisModal';
+import ClipModal from './ClipModal';
 
 const tools = [
   { tool: 'buffer', name: 'Buffer' },
@@ -64,7 +65,6 @@ export default function GPTools() {
         });
         break;
       case tools[5].tool:
-        setGPtool(tools[5].name);
         setOpenModal({
           ...openModal,
           clip: true,
@@ -114,7 +114,6 @@ export default function GPTools() {
           ...openModal,
           clip: false,
         });
-        setGPtool('');
         break;
     }
   };
@@ -158,10 +157,14 @@ export default function GPTools() {
         open={openModal.buffer}
         closeModal={() => handleCloseModal('buffer')}
       />
-      <GPAnalysisModal
+      <TwoLayerAnalysisModal
         gpTool={GPTool}
         open={openModal[GPTool.toLocaleLowerCase()]}
         closeModal={() => handleCloseModal(GPTool.toLocaleLowerCase())}
+      />
+      <ClipModal
+        open={openModal.clip}
+        closeModal={() => handleCloseModal('clip')}
       />
     </div>
   );

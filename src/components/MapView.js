@@ -3,7 +3,6 @@ import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { getLayers } from '../redux/layers-slice';
 import * as turf from '@turf/turf';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;

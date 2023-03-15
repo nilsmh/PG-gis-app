@@ -121,9 +121,40 @@ export default function Files() {
         flexDirection: 'column',
       }}
     >
-      <Typography sx={{ marginTop: 2 }} variant="subtitle2" gutterBottom>
-        Layers
-      </Typography>
+      <div style={{ width: '100%' }}>
+        <Typography
+          sx={{ margin: '10px 0px' }}
+          variant="subtitle2"
+          gutterBottom
+        >
+          Layers
+        </Typography>
+        <Divider />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          paddingBottom: '10px',
+          width: '150px',
+        }}
+      >
+        <div style={{ padding: '10px 0px' }}>
+          <Typography variant="subtitle3">
+            Upload your geojson files here:
+          </Typography>
+        </div>
+
+        <button onClick={handleUploadClick}>{'Click to select'}</button>
+
+        <input
+          type="file"
+          ref={inputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+          multiple
+        />
+      </div>
 
       {layers ? (
         <List
@@ -169,28 +200,6 @@ export default function Files() {
           })}
         </List>
       ) : null}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          paddingTop: '50px',
-          width: '150px',
-        }}
-      >
-        <div style={{ paddingBottom: '10px' }}>
-          Upload your geojson files here:
-        </div>
-
-        <button onClick={handleUploadClick}>{'Click to select'}</button>
-
-        <input
-          type="file"
-          ref={inputRef}
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-          multiple
-        />
-      </div>
     </div>
   );
 }

@@ -132,7 +132,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
         const nextKey = layers.slice(-1)[0].key + 1;
 
         const processedLayer = determineCalcFunction(currentLayer, nextKey);
-        console.log(processedLayer);
+
         if (!processedLayer) {
           snackBarAlert('The layers do not overlap', 'error');
         } else {
@@ -179,7 +179,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
                       key={layer.key}
                       value={layer}
                     >
-                      {layer.name.replace('.geojson', '')}
+                      {layer.name}
                     </MenuItem>
                   );
                 })
@@ -203,7 +203,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
                       key={layer.key}
                       value={layer}
                     >
-                      {layer.name.replace('.geojson', '')}
+                      {layer.name}
                     </MenuItem>
                   );
                 })

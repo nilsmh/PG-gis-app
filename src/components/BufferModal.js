@@ -133,7 +133,7 @@ export default function BufferModal({ open, closeModal }) {
               ? layers.map((layer) => {
                   return (
                     <MenuItem key={layer.key} value={layer}>
-                      {layer.name.replace('.geojson', '')}
+                      {layer.name}
                     </MenuItem>
                   );
                 })

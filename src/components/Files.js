@@ -166,7 +166,7 @@ export default function Files() {
           <Divider />
           {layers.map((layer, index) => {
             return (
-              <ListItem divider key={index}>
+              <ListItem sx={{ maxWidth: 235 }} divider key={index}>
                 <VisibilityIcon
                   sx={{
                     marginRight: 2,
@@ -180,12 +180,20 @@ export default function Files() {
                 <Box
                   sx={{
                     width: 10,
+                    maxWidth: 10,
                     height: 10,
                     backgroundColor: layer.color,
                     marginRight: 1,
                   }}
                 />
-                <ListItemText primary={layer.name.replace('.geojson', '')} />
+                <ListItemText
+                  style={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  primary={layer.name}
+                />
                 <SettingsIcon
                   sx={{
                     '&:hover': {

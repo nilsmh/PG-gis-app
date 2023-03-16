@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { addLayer } from '../redux/layers-slice';
@@ -181,11 +180,7 @@ export default function ClipModal({ open, closeModal }) {
             input={<OutlinedInput label="Choose layers to clip" />}
             renderValue={(selected) =>
               selected
-                .map((key) =>
-                  layers
-                    .find((layer) => layer.key === key)
-                    .name.replace('.geojson', '')
-                )
+                .map((key) => layers.find((layer) => layer.key === key).name)
                 .join(', ')
             }
             MenuProps={MenuProps}
@@ -222,7 +217,7 @@ export default function ClipModal({ open, closeModal }) {
                       key={layer.key}
                       value={layer}
                     >
-                      {layer.name.replace('.geojson', '')}
+                      {layer.name}
                     </MenuItem>
                   );
                 })

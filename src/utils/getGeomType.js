@@ -1,3 +1,3 @@
-export default function getGeomType(layer) {
-  return layer.features[0].geometry.type;
+export default function getGeomType(geom) {
+  return geom.features[0].geometry.type;
 }

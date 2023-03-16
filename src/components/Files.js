@@ -7,17 +7,46 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SettingsIcon from '@mui/icons-material/Settings';
-import randomColor from 'randomcolor';
+import Popover from '@mui/material/Popover';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { useSelector, useDispatch } from 'react-redux';
 import { addLayer, removeLayer, updateLayer } from '../redux/layers-slice';
 import createLayer from '../utils/CreateLayer';
+import ColorPicker from '../utils/ColorPicker';
+import NameChanger from '../utils/NameChanger';
 
 export default function Files() {
   const [fileList, setFileList] = useState([]);
   const [uploadedFileNames, setUploadedFileNames] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [layerToEdit, setLayerToEdit] = useState();
+  const [openEditName, setOpenEditName] = useState(false);
+  const [openColorPicker, setOpenColorPicker] = useState(false);
   const inputRef = useRef(null);
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
+  const handleClick = (event, layer) => {
+    setLayerToEdit(layer);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCloseColorPicker = () => {
+    setOpenColorPicker(false);
+  };
+
+  const handleCloseEditName = () => {
+    setOpenEditName(false);
+  };
 
   // Add a new layer to the store
   const handleAddLayer = (newLayer) => {
@@ -57,7 +86,6 @@ export default function Files() {
   const readFiles = () => {
     const files = fileList ? [...fileList] : [];
 
-    console.log(files);
     let key = 1;
     if (layers.length > 0) {
       key = layers.slice(-1)[0].key + 1;
@@ -80,6 +108,10 @@ export default function Files() {
   };
 
   useEffect(() => {
+    readFiles();
+  }, [fileList]);
+
+  useEffect(() => {
     if (uploadedFileNames.length === 1) {
       alert(
         `You have already uploaded this file: ${uploadedFileNames.join(', ')}`
@@ -92,10 +124,6 @@ export default function Files() {
     }
   }, [uploadedFileNames]);
 
-  useEffect(() => {
-    readFiles();
-  }, [fileList]);
-
   const deleteLayer = (key, name) => {
     handleRemoveLayer(key, name);
     setUploadedFileNames(
@@ -104,13 +132,13 @@ export default function Files() {
   };
 
   const changeVisibility = (layer) => {
-    console.log(layer);
     const updatedLayer = {
       ...layer,
       visibility: !layer.visibility,
     };
     handleUpdateLayer(updatedLayer);
   };
+
   return (
     <div
       style={{
@@ -155,7 +183,6 @@ export default function Files() {
           multiple
         />
       </div>
-
       {layers ? (
         <List
           sx={{
@@ -201,13 +228,70 @@ export default function Files() {
                       color: 'gray',
                     },
                   }}
-                  onClick={() => deleteLayer(layer.key, layer.name)}
+                  onClick={(e) => handleClick(e, layer)}
                 />
+                <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                >
+                  <EditIcon
+                    sx={{
+                      '&:hover': {
+                        cursor: 'pointer',
+                        color: 'gray',
+                      },
+                      padding: '3px',
+                    }}
+                    onClick={() => setOpenEditName(!openEditName)}
+                  />
+                  <ColorLensIcon
+                    sx={{
+                      padding: '3px',
+                      color: layer.color,
+                      '&:hover': {
+                        cursor: 'pointer',
+                        color: layer.color + '80',
+                      },
+                    }}
+                    onClick={() => setOpenColorPicker(!openColorPicker)}
+                  ></ColorLensIcon>
+                  <DeleteForeverIcon
+                    sx={{
+                      '&:hover': {
+                        cursor: 'pointer',
+                        color: 'gray',
+                      },
+                      padding: '3px',
+                    }}
+                    onClick={() => deleteLayer(layer.key, layer.name)}
+                  />
+                </Popover>
               </ListItem>
             );
           })}
         </List>
       ) : null}
+      {openColorPicker && (
+        <ColorPicker
+          open={openColorPicker}
+          handleClose={handleClose}
+          handleCloseDialog={handleCloseColorPicker}
+          layerToEdit={layerToEdit}
+        />
+      )}
+      {openEditName && (
+        <NameChanger
+          open={openEditName}
+          handleCloseDialog={handleCloseEditName}
+          layerToEdit={layerToEdit}
+        />
+      )}
     </div>
   );
 }

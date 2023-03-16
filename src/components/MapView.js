@@ -2,8 +2,8 @@ import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useSelector, useDispatch } from 'react-redux';
-import * as turf from '@turf/turf';
+import { useSelector } from 'react-redux';
+import getGeomType from '../utils/getGeomType';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -14,16 +14,9 @@ export default function MapView() {
   const [lat, setLat] = useState(63.446827);
   const [zoom, setZoom] = useState(12);
   const layers = useSelector((state) => state.layers);
-  const dispatch = useDispatch();
-  const [pointLayers, setPointLayers] = useState(turf.featureCollection([]));
-  const [lineLayers, setLineLayers] = useState(turf.featureCollection([]));
-  const [polygonLayers, setPolygonLayers] = useState(
-    turf.featureCollection([])
-  );
 
-  const determineVisibility = (layer) => {
-    return layer.visibility ? 'visible' : 'none';
-  };
+  const determineVisibility = (layer) =>
+    layer.visibility ? 'visible' : 'none';
 
   useEffect(() => {
     if (!mapContainer.current) {
@@ -38,32 +31,67 @@ export default function MapView() {
     });
     map.on('load', () => {
       layers.forEach((layer) => {
-        if (
-          layer.geom.features[0].geometry.type === 'Polygon' ||
-          layer.geom.features[0].geometry.type === 'MultiPolygon'
-        ) {
+        console.log(layer);
+        const sourceId = `data-geojson-${layer.key}`;
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: layer.geom,
+        });
+        const type = getGeomType(layer.geom);
+        if (type === 'Point') {
+          map.addLayer({
+            id: layer.key.toString(),
+            type: 'circle',
+            source: sourceId,
+            paint: {
+              'circle-radius': 5,
+              'circle-color': layer.color,
+              'circle-opacity': 0.8,
+            },
+            filter: ['==', '$type', 'Point'],
+          });
+          map.setLayoutProperty(
+            layer.key.toString(),
+            'visibility',
+            determineVisibility(layer)
+          );
+        } else if (type === 'Polygon' || type === 'MultiPolygon') {
           map.addLayer({
             id: layer.key.toString(),
             type: 'fill',
-            source: {
-              type: 'geojson',
-              data: layer.geom,
-            },
+            source: sourceId,
             paint: {
               'fill-color': layer.color,
               'fill-opacity': 0.8,
             },
+            filter: ['==', '$type', 'Polygon'],
           });
           map.setLayoutProperty(
-            layer.key,
+            layer.key.toString(),
+            'visibility',
+            determineVisibility(layer)
+          );
+        } else if (type === 'LineString' || type === 'MultiLineString') {
+          map.addLayer({
+            id: layer.key.toString(),
+            type: 'line',
+            source: sourceId,
+            paint: {
+              'line-color': layer.color,
+              'line-width': 2,
+            },
+            filter: ['==', '$type', 'LineString'],
+          });
+          map.setLayoutProperty(
+            layer.key.toString(),
             'visibility',
             determineVisibility(layer)
           );
         }
-        return () => {
-          map.remove();
-        };
       });
+      return () => {
+        map.remove();
+      };
     });
   }, [layers, map]);
 

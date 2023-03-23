@@ -31,7 +31,6 @@ export default function MapView() {
     });
     map.on('load', () => {
       layers.forEach((layer) => {
-        console.log(layer);
         const sourceId = `data-geojson-${layer.key}`;
         map.addSource(sourceId, {
           type: 'geojson',

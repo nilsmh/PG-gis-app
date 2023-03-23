@@ -7,6 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import BufferModal from './BufferModal';
 import TwoLayerAnalysisModal from './TwoLayerAnalysisModal';
 import ClipModal from './ClipModal';
+import FeatureExtractor from './FeatureExtractorModal';
 
 const tools = [
   { tool: 'buffer', name: 'Buffer' },
@@ -161,6 +162,10 @@ export default function GPTools() {
         gpTool={GPTool}
         open={openModal[GPTool.toLocaleLowerCase()]}
         closeModal={() => handleCloseModal(GPTool.toLocaleLowerCase())}
+      />
+      <FeatureExtractor
+        open={openModal.featureExtractor}
+        closeModal={() => handleCloseModal('featureExtractor')}
       />
       <ClipModal
         open={openModal.clip}

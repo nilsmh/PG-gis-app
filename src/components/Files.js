@@ -42,10 +42,12 @@ export default function Files() {
 
   const handleCloseColorPicker = () => {
     setOpenColorPicker(false);
+    handleClose();
   };
 
   const handleCloseEditName = () => {
     setOpenEditName(false);
+    handleClose();
   };
 
   // Add a new layer to the store
@@ -124,11 +126,12 @@ export default function Files() {
     }
   }, [uploadedFileNames]);
 
-  const deleteLayer = (key, name) => {
-    handleRemoveLayer(key, name);
+  const deleteLayer = (layer) => {
+    handleRemoveLayer(layer.key);
     setUploadedFileNames(
-      uploadedFileNames.filter((layer) => layer.name === name)
+      uploadedFileNames.filter((l) => l.name === layer.name)
     );
+    handleClose();
   };
 
   const changeVisibility = (layer) => {
@@ -188,6 +191,8 @@ export default function Files() {
           sx={{
             width: '100%',
             bgcolor: '#ADD8E6',
+            maxHeight: 220,
+            overflow: 'auto',
           }}
         >
           <Divider />
@@ -253,14 +258,14 @@ export default function Files() {
                   <ColorLensIcon
                     sx={{
                       padding: '3px',
-                      color: layer.color,
+                      color: layerToEdit ? layerToEdit.color : '#ccc',
                       '&:hover': {
                         cursor: 'pointer',
-                        color: layer.color + '80',
+                        color: layerToEdit ? layerToEdit.color + '80' : '#ccc',
                       },
                     }}
                     onClick={() => setOpenColorPicker(!openColorPicker)}
-                  ></ColorLensIcon>
+                  />
                   <DeleteForeverIcon
                     sx={{
                       '&:hover': {
@@ -269,7 +274,7 @@ export default function Files() {
                       },
                       padding: '3px',
                     }}
-                    onClick={() => deleteLayer(layer.key, layer.name)}
+                    onClick={() => deleteLayer(layerToEdit)}
                   />
                 </Popover>
               </ListItem>

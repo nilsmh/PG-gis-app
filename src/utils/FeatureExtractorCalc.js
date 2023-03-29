@@ -2,6 +2,7 @@ import createLayer from './CreateLayer';
 
 const featureExtractorCalc = (
   layerToExtract,
+  outputName,
   featureExtractValues,
   nextKey
 ) => {
@@ -11,9 +12,21 @@ const featureExtractorCalc = (
   };
 
   const { property, operation, value } = featureExtractValues;
-  if (operation === 'equals') {
+  if (operation === '=') {
     newFeatureExtractedLayer.features = layerToExtract.geom.features.filter(
-      (l) => l.properties[property] === value
+      (l) =>
+        l.properties[property] ===
+        (property === 'area' || property === 'mapSlopePe'
+          ? parseFloat(value)
+          : value)
+    );
+  } else if ((operation === '>' && property === 'area') || 'mapSlopePe') {
+    newFeatureExtractedLayer.features = layerToExtract.geom.features.filter(
+      (l) => l.properties[property] > parseFloat(value)
+    );
+  } else if ((operation === '<' && property === 'area') || 'mapSlopePe') {
+    newFeatureExtractedLayer.features = layerToExtract.geom.features.filter(
+      (l) => l.properties[property] < parseFloat(value)
     );
   }
 
@@ -21,11 +34,7 @@ const featureExtractorCalc = (
     return false;
   }
 
-  return createLayer(
-    nextKey,
-    layerToExtract.name + '_extracted',
-    newFeatureExtractedLayer
-  );
+  return createLayer(nextKey, outputName, newFeatureExtractedLayer);
 };
 
 export default featureExtractorCalc;

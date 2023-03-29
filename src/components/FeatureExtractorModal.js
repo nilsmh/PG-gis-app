@@ -10,7 +10,6 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { addLayer } from '../redux/layers-slice';
-import * as turf from '@turf/turf';
 import snackBarAlert from '../utils/SnackBarAlert';
 import featureExtractorCalc from '../utils/FeatureExtractorCalc';
 
@@ -20,17 +19,18 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 500,
-  height: 250,
+  height: 300,
   bgcolor: '#ADD8E6',
   boxShadow: 24,
   p: 2,
   borderRadius: 2,
 };
 
-const operations = ['equals', 'includes', 'startsWith'];
+const operations = ['=', '>', '<'];
 
 export default function FeatureExtractor({ open, closeModal }) {
-  const [currentLayer, setCurrentLayer] = useState(turf.featureCollection([]));
+  const [currentLayer, setCurrentLayer] = useState();
+  const [outputName, setOutputName] = useState('');
   const [featureExtractorOption, setFeatureExtractorOption] = useState({
     name: '',
     properties: [],
@@ -45,7 +45,7 @@ export default function FeatureExtractor({ open, closeModal }) {
   const handleCloseModal = () => closeModal();
 
   useEffect(() => {
-    if (layers.length) {
+    if (currentLayer) {
       featureExtractorOption.name = currentLayer.name;
       let updatedProps = [];
       currentLayer.geom.features.map((geom) => {
@@ -72,6 +72,10 @@ export default function FeatureExtractor({ open, closeModal }) {
 
   const handleChangeLayerToEdit = (event) => {
     setCurrentLayer(event.target.value);
+  };
+
+  const handleChangeOutputName = (event) => {
+    setOutputName(event.target.value);
   };
 
   const handleChangeExtractProperty = (e) => {
@@ -104,11 +108,13 @@ export default function FeatureExtractor({ open, closeModal }) {
         featureExtractValues.operation &&
         featureExtractValues.value
     );
+
     switch (success) {
       case true:
         const nextKey = layers.slice(-1)[0].key + 1;
         const featureExtractedLayer = featureExtractorCalc(
           currentLayer,
+          outputName,
           featureExtractValues,
           nextKey
         );
@@ -120,10 +126,18 @@ export default function FeatureExtractor({ open, closeModal }) {
             'Successfully extracted features from  ' + currentLayer.name,
             'success'
           );
+          setCurrentLayer();
+          setOutputName('');
           setFeatureExtractorOption({
             name: '',
             properties: [],
           });
+          setFeatureExtractValue({
+            property: '',
+            operation: '',
+            value: '',
+          });
+          handleCloseModal();
         }
         break;
       case false:
@@ -133,6 +147,12 @@ export default function FeatureExtractor({ open, closeModal }) {
   };
 
   const validateInput = () => {
+    if (!currentLayer) {
+      snackBarAlert('Invalid input layer. Please select a layer.', 'error');
+    }
+    if (!outputName) {
+      snackBarAlert('Invalid output name. Please type a output name.', 'error');
+    }
     if (!featureExtractValues.property) {
       snackBarAlert(
         'Invalid property input. Please select a property.',
@@ -146,7 +166,7 @@ export default function FeatureExtractor({ open, closeModal }) {
       );
     }
     if (!featureExtractValues.value) {
-      snackBarAlert('Invalid value layer. Please write a value.', 'error');
+      snackBarAlert('Invalid value input. Please write a value.', 'error');
     }
   };
 
@@ -167,17 +187,15 @@ export default function FeatureExtractor({ open, closeModal }) {
           style={{ marginTop: 20, height: 50 }}
         >
           <InputLabel>Choose a layer</InputLabel>
-          <Select label="Choose a Layer A" onChange={handleChangeLayerToEdit}>
+          <Select
+            value={currentLayer}
+            label="Choose a Layer A"
+            onChange={handleChangeLayerToEdit}
+          >
             {layers
               ? layers.map((layer) => {
                   return (
-                    <MenuItem
-                      disabled={
-                        layer.geom === currentLayer.layerB ? true : false
-                      }
-                      key={layer.key}
-                      value={layer}
-                    >
+                    <MenuItem key={layer.key} value={layer}>
                       {layer.name}
                     </MenuItem>
                   );
@@ -196,7 +214,11 @@ export default function FeatureExtractor({ open, closeModal }) {
             height: 56,
           }}
         >
-          <Select onChange={handleChangeExtractProperty} style={{ width: 200 }}>
+          <Select
+            value={featureExtractValues.property}
+            onChange={handleChangeExtractProperty}
+            style={{ width: 200 }}
+          >
             {featureExtractorOption.properties.map((prop, index) => {
               return (
                 <MenuItem key={index} value={prop}>
@@ -206,6 +228,7 @@ export default function FeatureExtractor({ open, closeModal }) {
             })}
           </Select>
           <Select
+            value={featureExtractValues.operation}
             onChange={handleChangeExtractOperation}
             style={{
               width: 100,
@@ -226,7 +249,15 @@ export default function FeatureExtractor({ open, closeModal }) {
             id="standard-basic"
           />
         </FormControl>
-
+        <FormControl required fullWidth={true}>
+          <TextField
+            style={{ marginTop: 10 }}
+            value={outputName}
+            onChange={handleChangeOutputName}
+            id="standard-basic"
+            label="Outfile name"
+          />
+        </FormControl>
         <Box
           style={{
             display: 'flex',

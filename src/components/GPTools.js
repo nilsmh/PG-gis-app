@@ -8,6 +8,7 @@ import BufferModal from './BufferModal';
 import TwoLayerAnalysisModal from './TwoLayerAnalysisModal';
 import ClipModal from './ClipModal';
 import FeatureExtractor from './FeatureExtractorModal';
+import AreaModal from './AreaModal';
 
 const tools = [
   { tool: 'buffer', name: 'Buffer' },
@@ -16,6 +17,7 @@ const tools = [
   { tool: 'featureExtractor', name: 'Feature Extractor' },
   { tool: 'union', name: 'Union' },
   { tool: 'clip', name: 'Clip' },
+  { tool: 'area', name: 'Area' },
 ];
 
 export default function GPTools() {
@@ -26,6 +28,7 @@ export default function GPTools() {
     featureExtractor: false,
     union: false,
     clip: false,
+    area: false,
   });
   const [GPTool, setGPtool] = useState('');
 
@@ -71,6 +74,12 @@ export default function GPTools() {
           clip: true,
         });
         break;
+      case tools[6].tool:
+        setOpenModal({
+          ...openModal,
+          area: true,
+        });
+        break;
     }
   };
 
@@ -114,6 +123,12 @@ export default function GPTools() {
         setOpenModal({
           ...openModal,
           clip: false,
+        });
+        break;
+      case tools[6].tool:
+        setOpenModal({
+          ...openModal,
+          area: false,
         });
         break;
     }
@@ -170,6 +185,10 @@ export default function GPTools() {
       <ClipModal
         open={openModal.clip}
         closeModal={() => handleCloseModal('clip')}
+      />
+      <AreaModal
+        open={openModal.area}
+        closeModal={() => handleCloseModal('area')}
       />
     </div>
   );

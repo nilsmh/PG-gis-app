@@ -13,6 +13,7 @@ import { addLayer } from '../redux/layers-slice';
 import * as turf from '@turf/turf';
 import bufferCalc from '../utils/BufferCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const style = {
   position: 'absolute',
@@ -28,6 +29,7 @@ const style = {
 };
 
 export default function BufferModal({ open, closeModal }) {
+  const [loading, setLoading] = useState(false);
   const [invalidDistance, setInvalidDistance] = useState(false);
   const [currentLayer, setCurrentLayer] = useState({
     layer: turf.featureCollection([]),
@@ -36,7 +38,10 @@ export default function BufferModal({ open, closeModal }) {
   });
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
-  const handleCloseModal = () => closeModal();
+  const handleCloseModal = () => {
+    cleanCurrentLayer();
+    closeModal();
+  };
 
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
@@ -87,6 +92,14 @@ export default function BufferModal({ open, closeModal }) {
     }
   };
 
+  const cleanCurrentLayer = () => {
+    setCurrentLayer({
+      layer: turf.featureCollection([]),
+      distance: 0,
+      output: '',
+    });
+  };
+
   const addBufferLayer = () => {
     let success = Boolean(
       currentLayer.layer.features.length &&
@@ -95,15 +108,23 @@ export default function BufferModal({ open, closeModal }) {
     );
     switch (success) {
       case true:
-        const nextKey = layers.slice(-1)[0].key + 1;
-        const bufferLayer = bufferCalc(currentLayer, nextKey);
-        handleAddLayer(bufferLayer);
-        snackBarAlert('Successfully created ' + currentLayer.output, 'success');
-        setCurrentLayer({
-          layer: turf.featureCollection([]),
-          distance: 0,
-          output: '',
-        });
+        setLoading(true);
+        setTimeout(() => {
+          try {
+            const nextKey = layers.slice(-1)[0].key + 1;
+            const bufferLayer = bufferCalc(currentLayer, nextKey);
+            handleAddLayer(bufferLayer);
+            setLoading(false);
+            snackBarAlert(
+              'Successfully created ' + currentLayer.output,
+              'success'
+            );
+            cleanCurrentLayer();
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
         break;
       case false:
         validateInput();
@@ -164,13 +185,19 @@ export default function BufferModal({ open, closeModal }) {
             marginTop: 10,
           }}
         >
-          <Button
-            variant="contained"
-            style={{ marginRight: 10 }}
-            onClick={addBufferLayer}
-          >
-            Calculate
-          </Button>
+          <div>
+            {loading ? (
+              <CircularProgress size={30} style={{ marginRight: 10 }} />
+            ) : (
+              <Button
+                variant="contained"
+                style={{ marginRight: 10 }}
+                onClick={addBufferLayer}
+              >
+                Calculate
+              </Button>
+            )}
+          </div>
           <Button variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>

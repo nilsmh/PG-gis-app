@@ -15,6 +15,7 @@ import snackBarAlert from '../utils/SnackBarAlert';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const style = {
   position: 'absolute',
@@ -41,6 +42,7 @@ const MenuProps = {
 };
 
 export default function ClipModal({ open, closeModal }) {
+  const [loading, setLoading] = useState(false);
   const [selectedLayers, setSelectedLayers] = useState([]);
   const [currentLayer, setCurrentLayer] = useState({
     layersToClip: [{ name: '', geom: turf.featureCollection([]) }],
@@ -48,7 +50,10 @@ export default function ClipModal({ open, closeModal }) {
   });
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
-  const handleCloseModal = () => closeModal();
+  const handleCloseModal = () => {
+    cleanCurrentLayer();
+    closeModal();
+  };
 
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
@@ -98,6 +103,7 @@ export default function ClipModal({ open, closeModal }) {
       layersToClip: [{ name: '', geom: turf.featureCollection([]) }],
       clipLayer: turf.featureCollection([]),
     });
+    setSelectedLayers([]);
   };
 
   const validateInput = () => {
@@ -122,29 +128,42 @@ export default function ClipModal({ open, closeModal }) {
     );
     switch (success) {
       case true:
-        let nextKey = layers.slice(-1)[0].key + 1;
-        currentLayer.layersToClip.forEach((layer) => {
-          const clipLayer = clipCalc(layer, currentLayer.clipLayer, nextKey);
-          console.log(clipLayer);
-          if (!clipLayer) {
-            snackBarAlert(
-              `${layer.name.replace(
-                '.geojson',
-                ''
-              )} do not overlap with the clipping layer`,
-              'error'
-            );
-          } else {
-            handleAddLayer(clipLayer);
-            snackBarAlert(
-              'Successfully created ' + currentLayer.output,
-              'success'
-            );
-          }
-          nextKey++;
-        });
+        setLoading(true);
+        setTimeout(() => {
+          try {
+            let nextKey = layers.slice(-1)[0].key + 1;
+            currentLayer.layersToClip.forEach((layer) => {
+              const clipLayer = clipCalc(
+                layer,
+                currentLayer.clipLayer,
+                nextKey
+              );
+              if (!clipLayer) {
+                setLoading(false);
+                snackBarAlert(
+                  `${layer.name.replace(
+                    '.geojson',
+                    ''
+                  )} do not overlap with the clipping layer`,
+                  'error'
+                );
+              } else {
+                handleAddLayer(clipLayer);
+                setLoading(false);
+                snackBarAlert(
+                  'Successfully created ' + currentLayer.output,
+                  'success'
+                );
+              }
+              nextKey++;
+            });
 
-        cleanCurrentLayer();
+            cleanCurrentLayer();
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
         break;
       case false:
         validateInput();
@@ -233,13 +252,19 @@ export default function ClipModal({ open, closeModal }) {
             marginTop: 10,
           }}
         >
-          <Button
-            variant="contained"
-            style={{ marginRight: 10 }}
-            onClick={addClipLayers}
-          >
-            Calculate
-          </Button>
+          <div>
+            {loading ? (
+              <CircularProgress size={30} style={{ marginRight: 10 }} />
+            ) : (
+              <Button
+                variant="contained"
+                style={{ marginRight: 10 }}
+                onClick={addClipLayers}
+              >
+                Calculate
+              </Button>
+            )}
+          </div>
           <Button variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>

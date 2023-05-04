@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addLayer } from '../redux/layers-slice';
 import snackBarAlert from '../utils/SnackBarAlert';
 import featureExtractorCalc from '../utils/FeatureExtractorCalc';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const style = {
   position: 'absolute',
@@ -29,6 +30,7 @@ const style = {
 const operations = ['=', '>', '<'];
 
 export default function FeatureExtractor({ open, closeModal }) {
+  const [loading, setLoading] = useState(false);
   const [currentLayer, setCurrentLayer] = useState();
   const [outputName, setOutputName] = useState('');
   const [featureExtractorOption, setFeatureExtractorOption] = useState({
@@ -42,7 +44,10 @@ export default function FeatureExtractor({ open, closeModal }) {
   });
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
-  const handleCloseModal = () => closeModal();
+  const handleCloseModal = () => {
+    cleanCurrentLayer();
+    closeModal();
+  };
 
   useEffect(() => {
     if (currentLayer) {
@@ -50,19 +55,22 @@ export default function FeatureExtractor({ open, closeModal }) {
       let updatedProps = [];
       currentLayer.geom.features.map((geom) => {
         let props = Object.keys(geom.properties);
+
         props.map((prop) => {
           if (
-            !featureExtractorOption.properties.includes(prop) &&
+            // !featureExtractorOption.properties.includes(prop) &&
             !updatedProps.includes(prop)
           ) {
             updatedProps.push(prop);
           }
         });
       });
+
       setFeatureExtractorOption((prev) => ({
         ...prev,
         properties: updatedProps,
       }));
+      console.log(featureExtractorOption);
     }
   }, [currentLayer]);
 
@@ -102,6 +110,20 @@ export default function FeatureExtractor({ open, closeModal }) {
     setFeatureExtractValue(updatedExtractValue);
   };
 
+  const cleanCurrentLayer = () => {
+    setCurrentLayer();
+    setOutputName('');
+    setFeatureExtractorOption({
+      name: '',
+      properties: [],
+    });
+    setFeatureExtractValue({
+      property: '',
+      operation: '',
+      value: '',
+    });
+  };
+
   const extractFeatures = () => {
     const success = Boolean(
       featureExtractValues.property &&
@@ -111,34 +133,39 @@ export default function FeatureExtractor({ open, closeModal }) {
 
     switch (success) {
       case true:
-        const nextKey = layers.slice(-1)[0].key + 1;
-        const featureExtractedLayer = featureExtractorCalc(
-          currentLayer,
-          outputName,
-          featureExtractValues,
-          nextKey
-        );
-        if (!featureExtractedLayer) {
-          snackBarAlert('There are no features matching your input', 'error');
-        } else {
-          handleAddLayer(featureExtractedLayer);
-          snackBarAlert(
-            'Successfully extracted features from  ' + currentLayer.name,
-            'success'
-          );
-          setCurrentLayer();
-          setOutputName('');
-          setFeatureExtractorOption({
-            name: '',
-            properties: [],
-          });
-          setFeatureExtractValue({
-            property: '',
-            operation: '',
-            value: '',
-          });
-          handleCloseModal();
-        }
+        setLoading(true);
+        setTimeout(() => {
+          try {
+            const nextKey = layers.slice(-1)[0].key + 1;
+            const featureExtractedLayer = featureExtractorCalc(
+              currentLayer,
+              outputName,
+              featureExtractValues,
+              nextKey
+            );
+            if (!featureExtractedLayer) {
+              setLoading(false);
+
+              snackBarAlert(
+                'There are no features matching your input',
+                'error'
+              );
+            } else {
+              handleAddLayer(featureExtractedLayer);
+              setLoading(false);
+
+              snackBarAlert(
+                'Successfully extracted features from  ' + currentLayer.name,
+                'success'
+              );
+              cleanCurrentLayer();
+              handleCloseModal();
+            }
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
         break;
       case false:
         validateInput();
@@ -266,13 +293,19 @@ export default function FeatureExtractor({ open, closeModal }) {
             marginTop: 20,
           }}
         >
-          <Button
-            variant="contained"
-            style={{ marginRight: 10 }}
-            onClick={extractFeatures}
-          >
-            Calculate
-          </Button>
+          <div>
+            {loading ? (
+              <CircularProgress size={30} style={{ marginRight: 10 }} />
+            ) : (
+              <Button
+                variant="contained"
+                style={{ marginRight: 10 }}
+                onClick={extractFeatures}
+              >
+                Calculate
+              </Button>
+            )}
+          </div>
           <Button variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>

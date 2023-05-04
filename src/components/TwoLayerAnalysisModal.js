@@ -15,6 +15,7 @@ import differenceCalc from '../utils/DifferenceCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
 import intersectCalc from '../utils/IntersectCalc';
 import unionCalc from '../utils/UnionCalc';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const style = {
   position: 'absolute',
@@ -30,6 +31,7 @@ const style = {
 };
 
 export default function GPAnalysisModal({ gpTool, open, closeModal }) {
+  const [loading, setLoading] = useState(false);
   const [currentLayer, setCurrentLayer] = useState({
     layerA: turf.featureCollection([]),
     layerB: turf.featureCollection([]),
@@ -37,7 +39,10 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
   });
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
-  const handleCloseModal = () => closeModal();
+  const handleCloseModal = () => {
+    cleanCurrentLayer();
+    closeModal();
+  };
 
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
@@ -129,21 +134,33 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
     );
     switch (success) {
       case true:
-        const nextKey = layers.slice(-1)[0].key + 1;
+        setLoading(true);
+        setTimeout(() => {
+          try {
+            const nextKey = layers.slice(-1)[0].key + 1;
 
-        const processedLayer = determineCalcFunction(currentLayer, nextKey);
+            const processedLayer = determineCalcFunction(currentLayer, nextKey);
 
-        if (!processedLayer) {
-          snackBarAlert('The layers do not overlap', 'error');
-        } else {
-          handleAddLayer(processedLayer);
-          snackBarAlert(
-            'Successfully created ' + currentLayer.output,
-            'success'
-          );
-        }
+            if (!processedLayer) {
+              setLoading(false);
 
-        cleanCurrentLayer();
+              snackBarAlert('The layers do not overlap', 'error');
+            } else {
+              handleAddLayer(processedLayer);
+              setLoading(false);
+
+              snackBarAlert(
+                'Successfully created ' + currentLayer.output,
+                'success'
+              );
+            }
+
+            cleanCurrentLayer();
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
         break;
       case false:
         validateInput();
@@ -227,13 +244,19 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
             marginTop: 10,
           }}
         >
-          <Button
-            variant="contained"
-            style={{ marginRight: 10 }}
-            onClick={addCalculatedLayer}
-          >
-            Calculate
-          </Button>
+          <div>
+            {loading ? (
+              <CircularProgress size={30} style={{ marginRight: 10 }} />
+            ) : (
+              <Button
+                variant="contained"
+                style={{ marginRight: 10 }}
+                onClick={addCalculatedLayer}
+              >
+                Calculate
+              </Button>
+            )}
+          </div>
           <Button variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>

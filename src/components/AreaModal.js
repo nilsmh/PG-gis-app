@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updateLayer } from '../redux/layers-slice';
 import areaCalc from '../utils/AreaCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const style = {
   position: 'absolute',
@@ -27,9 +28,13 @@ const style = {
 
 export default function AreaModal({ open, closeModal }) {
   const [currentLayer, setCurrentLayer] = useState();
+  const [loading, setLoading] = useState(false);
   const layers = useSelector((state) => state.layers);
   const dispatch = useDispatch();
-  const handleCloseModal = () => closeModal();
+  const handleCloseModal = () => {
+    cleanCurrentLayer();
+    closeModal();
+  };
 
   // Update an existing layer in the store
   const handleUpdateLayer = (updatedLayer) => {
@@ -65,23 +70,32 @@ export default function AreaModal({ open, closeModal }) {
 
     switch (success) {
       case true:
-        const geomArea = areaCalc(currentLayer.geom);
-        if (!geomArea) {
-          snackBarAlert('The layers do not overlap', 'error');
-        } else {
-          const updatedLayer = {
-            ...currentLayer,
-            geom: geomArea,
-          };
-          console.log(updatedLayer);
-          handleUpdateLayer(updatedLayer);
-          snackBarAlert(
-            'Successfully calculated area for ' + currentLayer.name,
-            'success'
-          );
-        }
+        setLoading(true);
+        setTimeout(() => {
+          try {
+            const geomArea = areaCalc(currentLayer.geom);
+            if (!geomArea) {
+              snackBarAlert('The layers do not overlap', 'error');
+            } else {
+              const updatedLayer = {
+                ...currentLayer,
+                geom: geomArea,
+              };
 
-        cleanCurrentLayer();
+              handleUpdateLayer(updatedLayer);
+              setLoading(false);
+              snackBarAlert(
+                'Successfully calculated area for ' + currentLayer.name,
+                'success'
+              );
+            }
+
+            cleanCurrentLayer();
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
         break;
       case false:
         validateInput();
@@ -126,13 +140,17 @@ export default function AreaModal({ open, closeModal }) {
             marginTop: 30,
           }}
         >
-          <Button
-            variant="contained"
-            style={{ marginRight: 10 }}
-            onClick={calculateArea}
-          >
-            Calculate
-          </Button>
+          {loading ? (
+            <CircularProgress size={30} style={{ marginRight: 10 }} />
+          ) : (
+            <Button
+              variant="contained"
+              style={{ marginRight: 10 }}
+              onClick={calculateArea}
+            >
+              Calculate
+            </Button>
+          )}
           <Button variant="outlined" onClick={handleCloseModal}>
             Cancel
           </Button>

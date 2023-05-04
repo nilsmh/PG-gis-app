@@ -9,18 +9,25 @@ import TwoLayerAnalysisModal from './TwoLayerAnalysisModal';
 import ClipModal from './ClipModal';
 import FeatureExtractor from './FeatureExtractorModal';
 import AreaModal from './AreaModal';
+import { Icon } from '@iconify/react';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const tools = [
-  { tool: 'buffer', name: 'Buffer' },
-  { tool: 'intersect', name: 'Intersect' },
-  { tool: 'difference', name: 'Difference' },
-  { tool: 'featureExtractor', name: 'Feature Extractor' },
-  { tool: 'union', name: 'Union' },
-  { tool: 'clip', name: 'Clip' },
-  { tool: 'area', name: 'Area' },
+  { tool: 'buffer', name: 'Buffer', icon: 'buffer' },
+  { tool: 'intersect', name: 'Intersect', icon: 'intersection' },
+  { tool: 'difference', name: 'Difference', icon: 'difference' },
+  {
+    tool: 'featureExtractor',
+    name: 'Feature Extractor',
+    icon: 'search-feature',
+  },
+  { tool: 'union', name: 'Union', icon: 'union' },
+  { tool: 'clip', name: 'Clip', icon: 'split' },
+  { tool: 'area', name: 'Area', icon: 'measure' },
 ];
 
-export default function GPTools() {
+export default function GPTools({ changeExpandedList }) {
   const [openModal, setOpenModal] = useState({
     buffer: false,
     intersect: false,
@@ -31,6 +38,12 @@ export default function GPTools() {
     area: false,
   });
   const [GPTool, setGPtool] = useState('');
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  function toggleList() {
+    changeExpandedList();
+    setIsExpanded(!isExpanded);
+  }
 
   const handleOpenModal = (modalType) => {
     switch (modalType) {
@@ -139,36 +152,63 @@ export default function GPTools() {
       style={{
         display: 'flex',
         width: '100%',
-        height: '70vh',
+        maxHeight: '70vh',
         alignItems: 'center',
         flexDirection: 'column',
       }}
     >
-      <Typography variant="subtitle2" gutterBottom>
-        Geo-processing tools
-      </Typography>
-
-      <List
-        sx={{
-          width: '100%',
-          bgcolor: '#ADD8E6',
-          marginBottom: 2,
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignContent: 'center',
         }}
       >
-        <Divider />
-        {tools.map((tool) => {
-          return (
-            <ListItem
-              button
-              divider
-              value={tool.tool}
-              onClick={() => handleOpenModal(tool.tool)}
-            >
-              <ListItemText primary={tool.name} />
-            </ListItem>
-          );
-        })}
-      </List>
+        <Typography variant="subtitle2" gutterBottom>
+          Geo-processing tools
+        </Typography>
+        {isExpanded ? (
+          <ExpandMoreIcon onClick={toggleList} />
+        ) : (
+          <ExpandLessIcon onClick={toggleList} />
+        )}
+      </div>
+      {isExpanded && (
+        <List
+          sx={{
+            width: '100%',
+            maxWidth: '20vw',
+            marginBottom: 2,
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+            overflow: 'hidden',
+            transition: 'max-height 0.3s ease-out',
+            maxHeight: '0px', // initially set to 0
+          }}
+          ref={(el) => {
+            // get the height of the list when it's expanded and set the max-height property
+            if (el && isExpanded) {
+              el.style.maxHeight = el.scrollHeight + 'px';
+            }
+          }}
+        >
+          <Divider />
+          {tools.map((tool) => {
+            return (
+              <ListItem
+                button
+                divider
+                value={tool.tool}
+                onClick={() => handleOpenModal(tool.tool)}
+              >
+                <Icon icon={'gis:' + tool.icon} />
+                <ListItemText primary={tool.name} sx={{ marginLeft: '5px' }} />
+              </ListItem>
+            );
+          })}
+        </List>
+      )}
       <BufferModal
         open={openModal.buffer}
         closeModal={() => handleCloseModal('buffer')}

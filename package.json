@@ -12,6 +12,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@turf/turf": "^6.5.0",
+    "font-gis": "^1.0.5",
     "mapbox-gl": "^2.13.0",
     "notistack": "^3.0.1",
     "randomcolor": "^0.6.2",
@@ -56,6 +57,7 @@
     ]
   },
   "devDependencies": {
+    "@iconify/react": "^4.1.0",
     "gh-pages": "^5.0.0"
   },
   "homepage": "https://nilsmh.github.io/PG-gis-app"

@@ -16,6 +16,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Icon } from '@iconify/react';
 
 const style = {
   position: 'absolute',
@@ -24,7 +25,7 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 600,
   height: 300,
-  bgcolor: '#ADD8E6',
+  bgcolor: '#65C492',
   boxShadow: 24,
   p: 2,
   borderRadius: 2,
@@ -179,9 +180,19 @@ export default function ClipModal({ open, closeModal }) {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
-          Clip
-        </Typography>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+          }}
+        >
+          <Icon icon="gis:split" />
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Clip
+          </Typography>
+        </div>
         <FormControl
           required
           fullWidth={true}

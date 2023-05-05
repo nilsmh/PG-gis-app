@@ -16,6 +16,7 @@ import snackBarAlert from '../utils/SnackBarAlert';
 import intersectCalc from '../utils/IntersectCalc';
 import unionCalc from '../utils/UnionCalc';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Icon } from '@iconify/react';
 
 const style = {
   position: 'absolute',
@@ -24,7 +25,7 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 600,
   height: 300,
-  bgcolor: '#ADD8E6',
+  bgcolor: '#65C492',
   boxShadow: 24,
   p: 2,
   borderRadius: 2,
@@ -176,9 +177,26 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
-          {gpTool}
-        </Typography>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+          }}
+        >
+          {gpTool === 'Intersect' ? (
+            <Icon icon="gis:intersection" />
+          ) : gpTool === 'Difference' ? (
+            <Icon icon="gis:difference" />
+          ) : gpTool === 'Union' ? (
+            <Icon icon="gis:union" />
+          ) : null}
+
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            {gpTool}
+          </Typography>
+        </div>
         <FormControl
           required
           fullWidth={true}

@@ -16,6 +16,7 @@ function App() {
             display: 'flex',
             width: '100%',
             justifyContent: 'space-between',
+            overflow: 'hidden',
           }}
         >
           <MapView />

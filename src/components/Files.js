@@ -6,6 +6,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Popover from '@mui/material/Popover';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,7 +18,7 @@ import createLayer from '../utils/CreateLayer';
 import ColorPicker from '../utils/ColorPicker';
 import NameChanger from '../utils/NameChanger';
 
-export default function Files() {
+export default function Files({ expanded }) {
   const [fileList, setFileList] = useState([]);
   const [uploadedFileNames, setUploadedFileNames] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -147,7 +148,7 @@ export default function Files() {
       style={{
         display: 'flex',
         width: '100%',
-        height: '100vh',
+        height: '100%',
         alignItems: 'center',
         flexDirection: 'column',
       }}
@@ -190,25 +191,38 @@ export default function Files() {
         <List
           sx={{
             width: '100%',
-            bgcolor: '#ADD8E6',
-            maxHeight: 220,
-            overflow: 'auto',
+            bgcolor: '#65C492',
+            maxHeight: expanded ? 205 : 545,
+            overflow: 'scroll',
           }}
         >
           <Divider />
           {layers.map((layer, index) => {
             return (
-              <ListItem sx={{ maxWidth: 235 }} divider key={index}>
-                <VisibilityIcon
-                  sx={{
-                    marginRight: 2,
-                    '&:hover': {
-                      cursor: 'pointer',
-                      color: 'gray',
-                    },
-                  }}
-                  onClick={() => changeVisibility(layer)}
-                />
+              <ListItem divider key={index}>
+                {layer.visibility ? (
+                  <VisibilityIcon
+                    sx={{
+                      marginRight: 2,
+                      '&:hover': {
+                        cursor: 'pointer',
+                        color: 'gray',
+                      },
+                    }}
+                    onClick={() => changeVisibility(layer)}
+                  />
+                ) : (
+                  <VisibilityOffIcon
+                    sx={{
+                      marginRight: 2,
+                      '&:hover': {
+                        cursor: 'pointer',
+                        color: 'gray',
+                      },
+                    }}
+                    onClick={() => changeVisibility(layer)}
+                  />
+                )}
                 <Box
                   sx={{
                     width: 10,

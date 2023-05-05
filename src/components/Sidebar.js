@@ -4,10 +4,15 @@ import Files from './Files';
 import GPTools from './GPTools';
 
 export default function Sidebar() {
+  const [expanded, setExpanded] = useState(true);
+
+  const handleChangeExpanded = () => {
+    setExpanded(!expanded);
+  };
   return (
     <div
       style={{
-        backgroundColor: '#ADD8E6',
+        backgroundColor: '#65C492',
         display: 'flex',
         width: '25vw',
         height: '100vh',
@@ -18,8 +23,8 @@ export default function Sidebar() {
       <Typography variant="h4" gutterBottom>
         GIS-app
       </Typography>
-      <GPTools />
-      <Files />
+      <GPTools changeExpandedList={handleChangeExpanded} />
+      <Files expanded={expanded} />
     </div>
   );
 }

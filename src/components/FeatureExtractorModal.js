@@ -13,6 +13,7 @@ import { addLayer } from '../redux/layers-slice';
 import snackBarAlert from '../utils/SnackBarAlert';
 import featureExtractorCalc from '../utils/FeatureExtractorCalc';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Icon } from '@iconify/react';
 
 const style = {
   position: 'absolute',
@@ -21,7 +22,7 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 500,
   height: 300,
-  bgcolor: '#ADD8E6',
+  bgcolor: '#65C492',
   boxShadow: 24,
   p: 2,
   borderRadius: 2,
@@ -205,9 +206,19 @@ export default function FeatureExtractor({ open, closeModal }) {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
-          Feature Extractor
-        </Typography>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+          }}
+        >
+          <Icon icon="gis:search-feature" />
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Feature Extractor
+          </Typography>
+        </div>
         <FormControl
           required
           fullWidth={true}

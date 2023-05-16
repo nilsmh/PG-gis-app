@@ -10,9 +10,9 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 export default function MapView() {
   const mapContainer = useRef(null);
   const [map, setMap] = useState(null);
-  const [lng, setLng] = useState(10.421906);
-  const [lat, setLat] = useState(63.446827);
-  const [zoom, setZoom] = useState(12);
+  const [lng, setLng] = useState(10.5);
+  const [lat, setLat] = useState(63.39);
+  const [zoom, setZoom] = useState(10.5);
   const layers = useSelector((state) => state.layers);
 
   const determineVisibility = (layer) =>

@@ -13,19 +13,9 @@ import areaCalc from '../utils/AreaCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
+import modalStyle from '../utils/modalStyle';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 600,
-  height: 180,
-  bgcolor: '#65C492',
-  boxShadow: 24,
-  p: 2,
-  borderRadius: 2,
-};
+const style = { ...modalStyle, height: 180 };
 
 export default function AreaModal({ open, closeModal }) {
   const [currentLayer, setCurrentLayer] = useState();
@@ -120,7 +110,7 @@ export default function AreaModal({ open, closeModal }) {
             gap: 5,
           }}
         >
-          <Icon icon="gis:measure" />
+          <Icon icon="gis:measure" color="#65C492" />
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Area
           </Typography>
@@ -136,7 +126,7 @@ export default function AreaModal({ open, closeModal }) {
               ? layers.map((layer) => {
                   return (
                     <MenuItem key={layer.key} value={layer}>
-                      {layer.name}
+                      {layer.name.split('.', 1)}
                     </MenuItem>
                   );
                 })
@@ -158,11 +148,12 @@ export default function AreaModal({ open, closeModal }) {
               variant="contained"
               style={{ marginRight: 10 }}
               onClick={calculateArea}
+              color="success"
             >
               Calculate
             </Button>
           )}
-          <Button variant="outlined" onClick={handleCloseModal}>
+          <Button variant="outlined" color="error" onClick={handleCloseModal}>
             Cancel
           </Button>
         </Box>

@@ -164,7 +164,7 @@ export default function GPTools({ changeExpandedList }) {
           alignContent: 'center',
         }}
       >
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography variant="subtitle3" gutterBottom>
           Geo-processing tools
         </Typography>
         {isExpanded ? (
@@ -193,18 +193,23 @@ export default function GPTools({ changeExpandedList }) {
             }
           }}
         >
-          <Divider />
+          <Divider color="#65C492" />
           {tools.map((tool) => {
             return (
-              <ListItem
-                button
-                divider
-                value={tool.tool}
-                onClick={() => handleOpenModal(tool.tool)}
-              >
-                <Icon icon={'gis:' + tool.icon} />
-                <ListItemText primary={tool.name} sx={{ marginLeft: '5px' }} />
-              </ListItem>
+              <div>
+                <ListItem
+                  button
+                  value={tool.tool}
+                  onClick={() => handleOpenModal(tool.tool)}
+                >
+                  <Icon icon={'gis:' + tool.icon} color="#65C492" />
+                  <ListItemText
+                    primary={tool.name}
+                    sx={{ marginLeft: '5px' }}
+                  />
+                </ListItem>
+                <Divider color="#65C492" />
+              </div>
             );
           })}
         </List>

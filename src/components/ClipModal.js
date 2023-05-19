@@ -17,30 +17,20 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
+import modalStyle from '../utils/modalStyle';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 600,
-  height: 300,
-  bgcolor: '#65C492',
-  boxShadow: 24,
-  p: 2,
-  borderRadius: 2,
-};
+const style = { ...modalStyle, height: 300 };
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
+// const ITEM_HEIGHT = 48;
+// const ITEM_PADDING_TOP = 8;
+// const MenuProps = {
+//   PaperProps: {
+//     style: {
+//       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+//       width: 250,
+//     },
+//   },
+// };
 
 export default function ClipModal({ open, closeModal }) {
   const [loading, setLoading] = useState(false);
@@ -188,7 +178,7 @@ export default function ClipModal({ open, closeModal }) {
             gap: 5,
           }}
         >
-          <Icon icon="gis:split" />
+          <Icon icon="gis:split" color="#65C492" />
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Clip
           </Typography>
@@ -213,7 +203,7 @@ export default function ClipModal({ open, closeModal }) {
                 .map((key) => layers.find((layer) => layer.key === key).name)
                 .join(', ')
             }
-            MenuProps={MenuProps}
+            // MenuProps={MenuProps}
           >
             {layers.map((layer) => (
               <MenuItem
@@ -222,7 +212,7 @@ export default function ClipModal({ open, closeModal }) {
                 disabled={layer.geom === currentLayer.clipLayer}
               >
                 <Checkbox checked={selectedLayers.indexOf(layer.key) > -1} />
-                <ListItemText primary={layer.name} />
+                <ListItemText primary={layer.name.split('.', 1)} />
               </MenuItem>
             ))}
           </Select>
@@ -247,7 +237,7 @@ export default function ClipModal({ open, closeModal }) {
                       key={layer.key}
                       value={layer}
                     >
-                      {layer.name}
+                      {layer.name.split('.', 1)}
                     </MenuItem>
                   );
                 })
@@ -271,12 +261,13 @@ export default function ClipModal({ open, closeModal }) {
                 variant="contained"
                 style={{ marginRight: 10 }}
                 onClick={addClipLayers}
+                color="success"
               >
                 Calculate
               </Button>
             )}
           </div>
-          <Button variant="outlined" onClick={handleCloseModal}>
+          <Button variant="outlined" color="error" onClick={handleCloseModal}>
             Cancel
           </Button>
         </Box>

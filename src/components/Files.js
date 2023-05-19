@@ -153,15 +153,10 @@ export default function Files({ expanded }) {
         flexDirection: 'column',
       }}
     >
-      <div style={{ width: '100%' }}>
-        <Typography
-          sx={{ margin: '10px 0px' }}
-          variant="subtitle2"
-          gutterBottom
-        >
+      <div style={{ width: '100%', margin: '10px 0px' }}>
+        <Typography variant="subtitle3" gutterBottom>
           Layers
         </Typography>
-        <Divider />
       </div>
       <div
         style={{
@@ -171,8 +166,8 @@ export default function Files({ expanded }) {
           width: '150px',
         }}
       >
-        <div style={{ padding: '10px 0px' }}>
-          <Typography variant="subtitle3">
+        <div>
+          <Typography variant="subtitle2">
             Upload your geojson files here:
           </Typography>
         </div>
@@ -191,107 +186,119 @@ export default function Files({ expanded }) {
         <List
           sx={{
             width: '100%',
-            bgcolor: '#65C492',
             maxHeight: expanded ? 205 : 545,
             overflow: 'scroll',
           }}
         >
-          <Divider />
+          <Divider color="#65C492" />
           {layers.map((layer, index) => {
             return (
-              <ListItem divider key={index}>
-                {layer.visibility ? (
-                  <VisibilityIcon
+              <div>
+                <ListItem key={index}>
+                  {layer.visibility ? (
+                    <VisibilityIcon
+                      sx={{
+                        marginRight: 2,
+                        '&:hover': {
+                          cursor: 'pointer',
+                          color: 'gray',
+                        },
+                      }}
+                      onClick={() => changeVisibility(layer)}
+                    />
+                  ) : (
+                    <VisibilityOffIcon
+                      sx={{
+                        marginRight: 2,
+                        '&:hover': {
+                          cursor: 'pointer',
+                          color: 'gray',
+                        },
+                      }}
+                      onClick={() => changeVisibility(layer)}
+                    />
+                  )}
+                  <Box
                     sx={{
-                      marginRight: 2,
-                      '&:hover': {
-                        cursor: 'pointer',
-                        color: 'gray',
-                      },
+                      width: 10,
+                      maxWidth: 10,
+                      height: 10,
+                      backgroundColor: layer.color,
+                      marginRight: 1,
                     }}
-                    onClick={() => changeVisibility(layer)}
                   />
-                ) : (
-                  <VisibilityOffIcon
-                    sx={{
-                      marginRight: 2,
-                      '&:hover': {
-                        cursor: 'pointer',
-                        color: 'gray',
-                      },
+                  <ListItemText
+                    style={{
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
                     }}
-                    onClick={() => changeVisibility(layer)}
+                    primary={layer.name.split('.', 1)}
                   />
-                )}
-                <Box
-                  sx={{
-                    width: 10,
-                    maxWidth: 10,
-                    height: 10,
-                    backgroundColor: layer.color,
-                    marginRight: 1,
-                  }}
-                />
-                <ListItemText
-                  style={{
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                  primary={layer.name}
-                />
-                <SettingsIcon
-                  sx={{
-                    '&:hover': {
-                      cursor: 'pointer',
-                      color: 'gray',
-                    },
-                  }}
-                  onClick={(e) => handleClick(e, layer)}
-                />
-                <Popover
-                  id={id}
-                  open={open}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                >
-                  <EditIcon
+                  <SettingsIcon
                     sx={{
                       '&:hover': {
                         cursor: 'pointer',
                         color: 'gray',
                       },
-                      padding: '3px',
                     }}
-                    onClick={() => setOpenEditName(!openEditName)}
+                    onClick={(e) => handleClick(e, layer)}
                   />
-                  <ColorLensIcon
-                    sx={{
-                      padding: '3px',
-                      color: layerToEdit ? layerToEdit.color : '#ccc',
-                      '&:hover': {
-                        cursor: 'pointer',
-                        color: layerToEdit ? layerToEdit.color + '80' : '#ccc',
-                      },
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
                     }}
-                    onClick={() => setOpenColorPicker(!openColorPicker)}
-                  />
-                  <DeleteForeverIcon
-                    sx={{
-                      '&:hover': {
-                        cursor: 'pointer',
-                        color: 'gray',
-                      },
-                      padding: '3px',
-                    }}
-                    onClick={() => deleteLayer(layerToEdit)}
-                  />
-                </Popover>
-              </ListItem>
+                    elevation={0}
+                  >
+                    <div
+                      style={{
+                        borderRadius: '4px',
+                        border: '2px solid #65C492',
+                      }}
+                    >
+                      <EditIcon
+                        sx={{
+                          '&:hover': {
+                            cursor: 'pointer',
+                            color: 'gray',
+                          },
+                          padding: '3px',
+                        }}
+                        onClick={() => setOpenEditName(!openEditName)}
+                      />
+                      <ColorLensIcon
+                        sx={{
+                          padding: '3px',
+                          color: layerToEdit ? layerToEdit.color : '#ccc',
+                          '&:hover': {
+                            cursor: 'pointer',
+                            color: layerToEdit
+                              ? layerToEdit.color + '80'
+                              : '#ccc',
+                          },
+                        }}
+                        onClick={() => setOpenColorPicker(!openColorPicker)}
+                      />
+                      <DeleteForeverIcon
+                        sx={{
+                          '&:hover': {
+                            cursor: 'pointer',
+                            color: 'gray',
+                          },
+                          padding: '3px',
+                        }}
+                        onClick={() => deleteLayer(layerToEdit)}
+                      />
+                    </div>
+                  </Popover>
+                </ListItem>
+                <Divider color="#65C492" />
+              </div>
             );
           })}
         </List>

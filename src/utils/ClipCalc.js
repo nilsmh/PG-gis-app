@@ -55,6 +55,10 @@ const clipFunction = (layerToClip, clipArea, nextKey) => {
   //Remove null or undefined features:
   newClipLayer.features = newClipLayer.features.filter((f) => f != null);
 
-  return createLayer(nextKey, layerToClip.name + '_clipped', newClipLayer);
+  return createLayer(
+    nextKey,
+    layerToClip.name.split('.', 1) + '_clip',
+    newClipLayer
+  );
 };
 export default clipFunction;

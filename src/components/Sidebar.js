@@ -12,7 +12,6 @@ export default function Sidebar() {
   return (
     <div
       style={{
-        backgroundColor: '#65C492',
         display: 'flex',
         width: '25vw',
         height: '100vh',
@@ -20,7 +19,7 @@ export default function Sidebar() {
         flexDirection: 'column',
       }}
     >
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom color="#65C492">
         GIS-app
       </Typography>
       <GPTools changeExpandedList={handleChangeExpanded} />

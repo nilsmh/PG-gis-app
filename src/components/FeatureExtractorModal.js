@@ -14,19 +14,9 @@ import snackBarAlert from '../utils/SnackBarAlert';
 import featureExtractorCalc from '../utils/FeatureExtractorCalc';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
+import modalStyle from '../utils/modalStyle';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  height: 300,
-  bgcolor: '#65C492',
-  boxShadow: 24,
-  p: 2,
-  borderRadius: 2,
-};
+const style = { ...modalStyle, height: 300 };
 
 const operations = ['=', '>', '<'];
 
@@ -214,7 +204,7 @@ export default function FeatureExtractor({ open, closeModal }) {
             gap: 5,
           }}
         >
-          <Icon icon="gis:search-feature" />
+          <Icon icon="gis:search-feature" color="#65C492" />
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Feature Extractor
           </Typography>
@@ -234,7 +224,7 @@ export default function FeatureExtractor({ open, closeModal }) {
               ? layers.map((layer) => {
                   return (
                     <MenuItem key={layer.key} value={layer}>
-                      {layer.name}
+                      {layer.name.split('.', 1)}
                     </MenuItem>
                   );
                 })
@@ -312,12 +302,13 @@ export default function FeatureExtractor({ open, closeModal }) {
                 variant="contained"
                 style={{ marginRight: 10 }}
                 onClick={extractFeatures}
+                color="success"
               >
                 Calculate
               </Button>
             )}
           </div>
-          <Button variant="outlined" onClick={handleCloseModal}>
+          <Button variant="outlined" color="error" onClick={handleCloseModal}>
             Cancel
           </Button>
         </Box>

@@ -16,18 +16,9 @@ import snackBarAlert from '../utils/SnackBarAlert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 600,
-  height: 300,
-  bgcolor: '#65C492',
-  boxShadow: 24,
-  p: 2,
-  borderRadius: 2,
-};
+import modalStyle from '../utils/modalStyle';
+
+const style = { ...modalStyle, height: 300 };
 
 export default function BufferModal({ open, closeModal }) {
   const [loading, setLoading] = useState(false);
@@ -149,7 +140,7 @@ export default function BufferModal({ open, closeModal }) {
             gap: 5,
           }}
         >
-          <Icon icon="gis:buffer" />
+          <Icon icon="gis:buffer" color="#65C492" />
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Buffer
           </Typography>
@@ -165,7 +156,7 @@ export default function BufferModal({ open, closeModal }) {
               ? layers.map((layer) => {
                   return (
                     <MenuItem key={layer.key} value={layer}>
-                      {layer.name}
+                      {layer.name.split('.', 1)}
                     </MenuItem>
                   );
                 })
@@ -204,12 +195,13 @@ export default function BufferModal({ open, closeModal }) {
                 variant="contained"
                 style={{ marginRight: 10 }}
                 onClick={addBufferLayer}
+                color="success"
               >
                 Calculate
               </Button>
             )}
           </div>
-          <Button variant="outlined" onClick={handleCloseModal}>
+          <Button variant="outlined" color="error" onClick={handleCloseModal}>
             Cancel
           </Button>
         </Box>

@@ -98,13 +98,14 @@ export default function MapView() {
           if (e.features[0].properties.area) {
             map.getCanvas().style.cursor = 'pointer';
             const coordinates = e.lngLat.wrap();
-            const description =
-              'Type dyr: ' +
-              e.features[0].properties.type +
-              '<br />' +
-              'Areal: ' +
-              e.features[0].properties.area.toFixed() / 1000000 +
-              '\u33A2';
+            const description = e.features[0].properties.type;
+            // const description =
+            //   'Type dyr: ' +
+            //   e.features[0].properties.type +
+            //   '<br />' +
+            //   'Areal: ' +
+            //   e.features[0].properties.area.toFixed() / 1000000 +
+            //   '\u33A2';
             // +
             // 'Antall observasjoner: ' +
             // e.features[0].properties.observasjoner;

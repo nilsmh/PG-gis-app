@@ -149,7 +149,7 @@ export default function ClipModal({ open, closeModal }) {
               nextKey++;
             });
 
-            cleanCurrentLayer();
+            handleCloseModal();
           } catch (error) {
             console.log(error);
             setLoading(false);

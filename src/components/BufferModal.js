@@ -111,7 +111,7 @@ export default function BufferModal({ open, closeModal }) {
               'Successfully created ' + currentLayer.output,
               'success'
             );
-            cleanCurrentLayer();
+            handleCloseModal();
           } catch (error) {
             console.log(error);
             setLoading(false);

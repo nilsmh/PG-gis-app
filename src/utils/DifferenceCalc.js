@@ -1,78 +1,80 @@
 import difference from '@turf/difference';
 import createLayer from './CreateLayer';
-import checkEqualGeometry from './CheckEqualGeometry';
+import booleanOverlap from '@turf/boolean-overlap';
+import booleanDisjoint from '@turf/boolean-disjoint';
+import dissolveLayers from './DissolveGeom';
 
 const differenceCalc = (layerToCalc, nextKey) => {
   let newDifferenceLayer = {
     type: 'FeatureCollection',
     features: [],
   };
+  const intersectionMap = new Map();
 
-  layerToCalc.layerA.features.forEach((poly1) => {
-    layerToCalc.layerB.features.forEach((poly2) => {
-      newDifferenceLayer.features.push(difference(poly1, poly2));
+  const { dissolvedLayerA, dissolvedLayerB } = dissolveLayers(
+    layerToCalc.layerA,
+    layerToCalc.layerB
+  );
+
+  //find all segments that intersects and allocate in map
+  dissolvedLayerA.features.forEach((feature1) => {
+    intersectionMap.set(feature1, []);
+    dissolvedLayerB?.features.forEach((feature2) => {
+      //if overlapping we add to the list of intersecting geometries
+      if (booleanOverlap(feature1, feature2)) {
+        intersectionMap.get(feature1).push(feature2);
+      }
     });
   });
 
-  newDifferenceLayer.features = newDifferenceLayer.features.filter(
-    (f) => f != null
+  //We compute the difference between each segment of layer 1 and all the ones it intersects with
+  Array.from(intersectionMap.entries()).forEach(
+    ([feature, intersectingFeatures]) => {
+      let diff = feature;
+      //BoleanOverlap does not count geometries completely covered,
+      //therefore a geometry completely covered will have length 0
+      if (intersectingFeatures.length === 0) {
+        //if geometry is disjoint from all geometries in dissolvedLayerB it is an outlier and needs to be included
+        if (
+          dissolvedLayerB?.features.every((feat) =>
+            booleanDisjoint(feature, feat)
+          )
+        ) {
+          newDifferenceLayer.features.push(feature);
+        }
+      } else {
+        //Compute the differnce recursive for all intersecting geometries
+        for (let i = 0; i < intersectingFeatures.length; i++) {
+          const tempDiff = difference(diff, intersectingFeatures[i]);
+          if (tempDiff) {
+            diff = tempDiff;
+          }
+        }
+        newDifferenceLayer.features.push(diff);
+      }
+    }
   );
-  if (
-    checkEqualGeometry(
-      layerToCalc.layerA.features[0].geometry.coordinates[0],
-      newDifferenceLayer.features[0].geometry.coordinates[0]
-    )
-  ) {
-    return false;
-  }
 
   return createLayer(nextKey, layerToCalc.output, newDifferenceLayer);
+  // return differenceList;
+
+  // layerToCalc.layerA.features.forEach((poly1) => {
+  //   layerToCalc.layerB.features.forEach((poly2) => {
+  //     newDifferenceLayer.features.push(difference(poly1, poly2));
+  //   });
+  // });
+
+  // newDifferenceLayer.features = newDifferenceLayer.features.filter(
+  //   (f) => f != null
+  // );
+  // if (
+  //   checkEqualGeometry(
+  //     layerToCalc.layerA.features[0].geometry.coordinates[0],
+  //     newDifferenceLayer.features[0].geometry.coordinates[0]
+  //   )
+  // ) {
+  //   return false;
+  // }
 };
 
 export default differenceCalc;
-
-// import difference from '@turf/difference';
-
-// const differenceFunction = (currentLayer, nextKey) => {
-//   let geojson1 = currentLayer.layerA;
-//   let geojson2 = currentLayer.layerB;
-//   let output = currentLayer.output;
-//   console.log(geojson1);
-//   console.log(geojson2);
-//   console.log(output);
-//   if (!(geojson1 && geojson2)) {
-//     return 'Two geometries are required';
-//   } else if (
-//     geojson1.features[0].geometry.type !== 'Polygon' &&
-//     geojson1.features[0].geometry.type !== 'MultiPolygon'
-//   ) {
-//     return 'The geometries must be of type Polygon or MultiPolygon.';
-//   } else if (geojson1 === geojson2) {
-//     return 'The geometries cannot be identical';
-//   }
-
-//   let newFeatures = [];
-
-//   geojson1.features.forEach((f1, i) => {
-//     let f1_temp = JSON.parse(JSON.stringify(f1));
-//     geojson2.features.forEach((f2) => {
-//       f1_temp = difference(f1_temp, f2);
-//     });
-
-//     newFeatures.push(f1_temp);
-//   });
-
-//   newFeatures.forEach((f, i) => {
-//     geojson1.features[i] = f;
-//   });
-
-//   //Remove all null or unidentified features
-//   geojson1.features = geojson1.features.filter((f) => f != null);
-
-//   if (!geojson1.features[0]) {
-//     return 'There is no geometry left after performing the difference operation. Try swapping the order';
-//   }
-//   return createLayer(nextKey, output, geojson1);
-// };
-
-// export default differenceFunction;

@@ -146,7 +146,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
               );
             }
 
-            cleanCurrentLayer();
+            handleCloseModal();
           } catch (error) {
             console.log(error);
             setLoading(false);

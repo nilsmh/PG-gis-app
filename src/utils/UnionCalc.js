@@ -1,6 +1,7 @@
 import union from '@turf/union';
 import createLayer from './CreateLayer';
 import booleanOverlap from '@turf/boolean-overlap';
+import booleanIntersects from '@turf/boolean-intersects';
 import dissolveLayers from './DissolveGeom';
 
 const unionCalc = (layerToCalc, nextKey) => {
@@ -17,14 +18,11 @@ const unionCalc = (layerToCalc, nextKey) => {
   dissolvedLayerA.features.forEach((poly1) => {
     let poly1Used = false;
     dissolvedLayerB.features.forEach((poly2) => {
-      if (booleanOverlap(poly1, poly2)) {
+      if (booleanIntersects(poly1, poly2)) {
         //Overlap
         const unions = union(poly1, poly2);
-        console.log(unions);
-        if (
-          unions !== null &&
-          newUnionLayer.features.every((poly) => !booleanOverlap(unions, poly))
-        ) {
+
+        if (unions !== null) {
           const unionLayer = {
             type: 'Feature',
             properties: { ...poly1.properties, ...poly2.properties },
@@ -33,6 +31,12 @@ const unionCalc = (layerToCalc, nextKey) => {
           newUnionLayer.features.push(unionLayer);
           poly1Used = true;
         }
+      } else if (!poly1Used) {
+        newUnionLayer.features.push(poly1);
+        newUnionLayer.features.push(poly2);
+        poly1Used = true;
+      } else {
+        newUnionLayer.features.push(poly2);
       }
     });
 

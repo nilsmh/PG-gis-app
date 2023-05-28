@@ -48,10 +48,7 @@ export default function FeatureExtractor({ open, closeModal }) {
         let props = Object.keys(geom.properties);
 
         props.map((prop) => {
-          if (
-            // !featureExtractorOption.properties.includes(prop) &&
-            !updatedProps.includes(prop)
-          ) {
+          if (!updatedProps.includes(prop)) {
             updatedProps.push(prop);
           }
         });
@@ -149,7 +146,6 @@ export default function FeatureExtractor({ open, closeModal }) {
                 'Successfully extracted features from  ' + currentLayer.name,
                 'success'
               );
-              cleanCurrentLayer();
               handleCloseModal();
             }
           } catch (error) {

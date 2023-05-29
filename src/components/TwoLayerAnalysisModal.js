@@ -19,27 +19,33 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
 import modalStyle from '../utils/modalStyle';
 
+// Modal styling
 const style = { ...modalStyle, height: 300 };
 
 export default function GPAnalysisModal({ gpTool, open, closeModal }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //Loading calculation state
+  //Selected layers and output name
   const [currentLayer, setCurrentLayer] = useState({
     layerA: turf.featureCollection([]),
     layerB: turf.featureCollection([]),
     output: '',
   });
+  //Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  //Dispatch function to dispatch to redux store
   const dispatch = useDispatch();
   const handleCloseModal = () => {
     cleanCurrentLayer();
     closeModal();
   };
 
+  //Add new layer to redux store
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
   };
-
+  //Set first selected layer
   const handleChangeLayerA = (event) => {
+    // Check if layers are of type polygon or multipolygon
     if (
       event.target.value.geom.features[0].geometry.type !== 'Polygon' &&
       event.target.value.geom.features[0].geometry.type !== 'MultiPolygon'
@@ -56,8 +62,9 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
       setCurrentLayer(updatedLayer);
     }
   };
-
+  //Set second selected layer
   const handleChangeLayerB = (event) => {
+    // Check if layers are of type polygon or multipolygon
     if (
       event.target.value.geom.features[0].geometry.type !== 'Polygon' &&
       event.target.value.geom.features[0].geometry.type !== 'MultiPolygon'
@@ -74,7 +81,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
       setCurrentLayer(updatedLayer);
     }
   };
-
+  // Set output layer name
   const handleChangeOutputFile = (event) => {
     const updatedLayer = {
       ...currentLayer,
@@ -83,6 +90,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
     setCurrentLayer(updatedLayer);
   };
 
+  // Clear modal input
   const cleanCurrentLayer = () => {
     setCurrentLayer({
       layerA: turf.featureCollection([]),
@@ -91,6 +99,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
     });
   };
 
+  // Validate the input and return an alert if something is wrong
   const validateInput = () => {
     if (!currentLayer.layerA.features.length) {
       snackBarAlert('Invalid input layer A. Please select a layer.', 'error');
@@ -106,18 +115,24 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
     }
   };
 
+  // Determine with GP calculation function to use (Intersect, Difference, Union)
   const determineCalcFunction = (layers, key) => {
     switch (gpTool) {
       case 'Intersect':
+        // Returns intersected layer
         return intersectCalc(layers, key);
       case 'Difference':
+        // Returns difference layer
         return differenceCalc(layers, key);
       case 'Union':
+        // Returns union layer
         return unionCalc(layers, key);
     }
   };
 
+  // Add new layer
   const addCalculatedLayer = () => {
+    // Check if all input values are set
     let success = Boolean(
       currentLayer.layerA.features.length &&
         currentLayer.layerB.features.length &&
@@ -127,27 +142,26 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
       case true:
         setLoading(true);
         setTimeout(() => {
+          // Try to calculate new layer
           try {
-            const nextKey = layers.slice(-1)[0].key + 1;
-
+            const nextKey = layers.slice(-1)[0].key + 1; //Get next available key
+            // Determine with gp calculation to do and returned the calculated layer
             const processedLayer = determineCalcFunction(currentLayer, nextKey);
-
+            // Check if returned calculated layer is true
             if (!processedLayer) {
               setLoading(false);
-
               snackBarAlert('The layers do not overlap', 'error');
             } else {
-              handleAddLayer(processedLayer);
+              handleAddLayer(processedLayer); // Add new calculated layer
               setLoading(false);
-
               snackBarAlert(
                 'Successfully created ' + currentLayer.output,
                 'success'
               );
             }
-
             handleCloseModal();
           } catch (error) {
+            // Handle error
             console.log(error);
             setLoading(false);
           }
@@ -175,6 +189,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
             gap: 5,
           }}
         >
+          {/* Determine with GP-tool icon to use */}
           {gpTool === 'Intersect' ? (
             <Icon icon="gis:intersection" color="#65C492" />
           ) : gpTool === 'Difference' ? (
@@ -182,7 +197,6 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
           ) : gpTool === 'Union' ? (
             <Icon icon="gis:union" color="#65C492" />
           ) : null}
-
           <Typography id="modal-modal-title" variant="h6" component="h2">
             {gpTool}
           </Typography>
@@ -194,10 +208,12 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
         >
           <InputLabel>Choose a Layer A</InputLabel>
           <Select label="Choose a Layer A" onChange={handleChangeLayerA}>
+            {/* Loop through added layers */}
             {layers
               ? layers.map((layer) => {
                   return (
                     <MenuItem
+                      // Disable layers that are already selected
                       disabled={
                         layer.geom === currentLayer.layerB ? true : false
                       }
@@ -218,10 +234,12 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
         >
           <InputLabel>Choose a Layer B</InputLabel>
           <Select label="Choose a Layer B" onChange={handleChangeLayerB}>
+            {/* Loop through added layers */}
             {layers
               ? layers.map((layer) => {
                   return (
                     <MenuItem
+                      // Disable layers that are already selected
                       disabled={
                         layer.geom === currentLayer.layerA ? true : false
                       }
@@ -234,6 +252,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
                 })
               : null}
           </Select>
+          {/* Output name field */}
           <TextField
             style={{ marginTop: 10 }}
             value={currentLayer.output}
@@ -254,6 +273,7 @@ export default function GPAnalysisModal({ gpTool, open, closeModal }) {
         >
           <div>
             {loading ? (
+              // Loading component
               <CircularProgress size={30} style={{ marginRight: 10 }} />
             ) : (
               <Button

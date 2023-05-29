@@ -4,47 +4,57 @@ import booleanOverlap from '@turf/boolean-overlap';
 import booleanDisjoint from '@turf/boolean-disjoint';
 import dissolveLayers from './DissolveGeom';
 
+// Difference calculation
 const differenceCalc = (layerToCalc, nextKey) => {
+  // Set empty layer
   let newDifferenceLayer = {
     type: 'FeatureCollection',
     features: [],
   };
+
+  // Set empty Map for intersected polygons
   const intersectionMap = new Map();
 
+  // Dissolve the layers
   const { dissolvedLayerA, dissolvedLayerB } = dissolveLayers(
     layerToCalc.layerA,
     layerToCalc.layerB
   );
 
-  //find all segments that intersects and allocate in map
-  dissolvedLayerA.features.forEach((feature1) => {
-    intersectionMap.set(feature1, []);
-    dissolvedLayerB?.features.forEach((feature2) => {
-      //if overlapping we add to the list of intersecting geometries
-      if (booleanOverlap(feature1, feature2)) {
-        intersectionMap.get(feature1).push(feature2);
+  // Loop through the first layer
+  dissolvedLayerA.features.forEach((poly1) => {
+    // Allocate each polygon in the Map
+    intersectionMap.set(poly1, []);
+    // Loop through the second layer
+    dissolvedLayerB.features.forEach((poly2) => {
+      // Check if the polygons intersect
+      if (booleanOverlap(poly1, poly2)) {
+        // Add polygon 2 to the intersection Map to the list of intersection geometries with polygon 1
+        intersectionMap.get(poly1).push(poly2);
       }
     });
   });
 
-  //We compute the difference between each segment of layer 1 and all the ones it intersects with
+  // Calculate the difference between each polygon in layer 1 and all the corresponding intersection polygons
   Array.from(intersectionMap.entries()).forEach(
-    ([feature, intersectingFeatures]) => {
-      let diff = feature;
-      //BoleanOverlap does not count geometries completely covered,
-      //therefore a geometry completely covered will have length 0
+    ([polygon, intersectingFeatures]) => {
+      let diff = polygon;
+      // If the polygons are completely covered, booleanOverlap does not count it,
+      // the polygon will have length 0
       if (intersectingFeatures.length === 0) {
-        //if geometry is disjoint from all geometries in dissolvedLayerB it is an outlier and needs to be included
+        // Need to check if the geometry is disjoint from all polygons in dissolvedLayerB,
+        // then it is an outlier and needs to be included
         if (
-          dissolvedLayerB?.features.every((feat) =>
-            booleanDisjoint(feature, feat)
+          dissolvedLayerB.features.every((poly) =>
+            booleanDisjoint(polygon, poly)
           )
         ) {
-          newDifferenceLayer.features.push(feature);
+          newDifferenceLayer.features.push(polygon);
         }
       } else {
-        //Compute the differnce recursive for all intersecting geometries
+        // Calculate the difference recursivly for all intersection polygons
         for (let i = 0; i < intersectingFeatures.length; i++) {
+          // Different between the polygon and all the correspoding intersection polygons
           const tempDiff = difference(diff, intersectingFeatures[i]);
           if (tempDiff) {
             diff = tempDiff;
@@ -55,7 +65,9 @@ const differenceCalc = (layerToCalc, nextKey) => {
     }
   );
 
+  // Return a complete layer
   return createLayer(nextKey, layerToCalc.output, newDifferenceLayer);
+
   // return differenceList;
 
   // layerToCalc.layerA.features.forEach((poly1) => {

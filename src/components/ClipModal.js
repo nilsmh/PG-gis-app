@@ -19,42 +19,39 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
 import modalStyle from '../utils/modalStyle';
 
+// Modal styling
 const style = { ...modalStyle, height: 300 };
 
-// const ITEM_HEIGHT = 48;
-// const ITEM_PADDING_TOP = 8;
-// const MenuProps = {
-//   PaperProps: {
-//     style: {
-//       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-//       width: 250,
-//     },
-//   },
-// };
-
 export default function ClipModal({ open, closeModal }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //Loading calculation state
+  // List of selected layer to clip
   const [selectedLayers, setSelectedLayers] = useState([]);
+  // Selected layers to clip and clipping layer
   const [currentLayer, setCurrentLayer] = useState({
     layersToClip: [{ name: '', geom: turf.featureCollection([]) }],
     clipLayer: turf.featureCollection([]),
   });
+  //Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  //Dispatch function to dispatch to redux store
   const dispatch = useDispatch();
   const handleCloseModal = () => {
     cleanCurrentLayer();
     closeModal();
   };
 
+  //Add new layer to redux store
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
   };
 
+  // Set layers to clip
   const handleChange = (event) => {
     const {
       target: { value },
     } = event;
 
+    // Temp array with selected layers
     const selectedLayersArray = value.map((layerKey) => {
       return layers.find((layer) => layer.key === layerKey);
     });
@@ -70,7 +67,9 @@ export default function ClipModal({ open, closeModal }) {
     setSelectedLayers(value);
   };
 
+  // Set clipping layer
   const handleChangeClippingLayer = (event) => {
+    // Check if layers are of type polygon or multipolygon
     if (
       event.target.value.geom.features[0].geometry.type !== 'Polygon' &&
       event.target.value.geom.features[0].geometry.type !== 'MultiPolygon'
@@ -85,10 +84,10 @@ export default function ClipModal({ open, closeModal }) {
         clipLayer: event.target.value.geom,
       };
       setCurrentLayer(updatedLayer);
-      console.log(updatedLayer);
     }
   };
 
+  // Clear modal input
   const cleanCurrentLayer = () => {
     setCurrentLayer({
       layersToClip: [{ name: '', geom: turf.featureCollection([]) }],
@@ -97,6 +96,7 @@ export default function ClipModal({ open, closeModal }) {
     setSelectedLayers([]);
   };
 
+  // Validate the input and return an alert if something is wrong
   const validateInput = () => {
     if (!currentLayer.layersToClip[0].geom.features.length) {
       snackBarAlert(
@@ -112,45 +112,52 @@ export default function ClipModal({ open, closeModal }) {
     }
   };
 
+  // Add new clipped layers
   const addClipLayers = () => {
-    let success = Boolean(
+    // Check if all input values are set
+    let check = Boolean(
       currentLayer.layersToClip[0].geom.features.length &&
         currentLayer.clipLayer.features.length
     );
-    switch (success) {
+    switch (check) {
       case true:
         setLoading(true);
         setTimeout(() => {
+          // Try to calculate new clipped layes
           try {
-            let nextKey = layers.slice(-1)[0].key + 1;
+            let nextKey = layers.slice(-1)[0].key + 1; //Get next available key
+            // Loop through each layer to clip
             currentLayer.layersToClip.forEach((layer) => {
+              // Clip function
               const clipLayer = clipCalc(
                 layer,
                 currentLayer.clipLayer,
                 nextKey
               );
+              // Check if returned clipped layer is true
               if (!clipLayer) {
                 setLoading(false);
+
                 snackBarAlert(
-                  `${layer.name.replace(
-                    '.geojson',
-                    ''
+                  `${layer.name.split(
+                    '.',
+                    1
                   )} do not overlap with the clipping layer`,
                   'error'
                 );
               } else {
-                handleAddLayer(clipLayer);
+                handleAddLayer(clipLayer); // Add new clipped layer
                 setLoading(false);
                 snackBarAlert(
-                  'Successfully created ' + currentLayer.output,
+                  'Successfully created ' + clipLayer.name.split('.', 1),
                   'success'
                 );
               }
-              nextKey++;
+              nextKey++; // Increment to new unique key
             });
-
             handleCloseModal();
           } catch (error) {
+            // Handle error
             console.log(error);
             setLoading(false);
           }
@@ -191,6 +198,7 @@ export default function ClipModal({ open, closeModal }) {
           <InputLabel id="demo-multiple-checkbox-label">
             Choose layers to clip
           </InputLabel>
+          {/* Select layers to clip field */}
           <Select
             labelId="demo-multiple-checkbox-label"
             id="demo-multiple-checkbox"
@@ -203,13 +211,13 @@ export default function ClipModal({ open, closeModal }) {
                 .map((key) => layers.find((layer) => layer.key === key).name)
                 .join(', ')
             }
-            // MenuProps={MenuProps}
           >
+            {/* Loop through added layers */}
             {layers.map((layer) => (
               <MenuItem
                 key={layer.key}
                 value={layer.key}
-                disabled={layer.geom === currentLayer.clipLayer}
+                disabled={layer.geom === currentLayer.clipLayer} // Disable layers that are already selected
               >
                 <Checkbox checked={selectedLayers.indexOf(layer.key) > -1} />
                 <ListItemText primary={layer.name.split('.', 1)} />
@@ -223,10 +231,12 @@ export default function ClipModal({ open, closeModal }) {
           style={{ marginTop: 50, height: 100 }}
         >
           <InputLabel>Choose a clipping layer</InputLabel>
+          {/* Select clipping layer */}
           <Select
             label="Choose a clipping layer"
             onChange={handleChangeClippingLayer}
           >
+            {/* Loop through added layers */}
             {layers
               ? layers.map((layer) => {
                   return (
@@ -234,6 +244,7 @@ export default function ClipModal({ open, closeModal }) {
                       disabled={
                         selectedLayers.includes(layer.key) ? true : false
                       }
+                      // Disable layers that are already selected in the select layers to clip field
                       key={layer.key}
                       value={layer}
                     >
@@ -255,6 +266,7 @@ export default function ClipModal({ open, closeModal }) {
         >
           <div>
             {loading ? (
+              // Loading component
               <CircularProgress size={30} style={{ marginRight: 10 }} />
             ) : (
               <Button

@@ -15,30 +15,35 @@ import bufferCalc from '../utils/BufferCalc';
 import snackBarAlert from '../utils/SnackBarAlert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
-
 import modalStyle from '../utils/modalStyle';
 
+//Modal styling
 const style = { ...modalStyle, height: 300 };
 
 export default function BufferModal({ open, closeModal }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //Loading calculation state
   const [invalidDistance, setInvalidDistance] = useState(false);
+  // Selected layer, distance and output name
   const [currentLayer, setCurrentLayer] = useState({
     layer: turf.featureCollection([]),
     distance: 0,
     output: '',
   });
+  //Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  //Dispatch function to dispatch to redux store
   const dispatch = useDispatch();
   const handleCloseModal = () => {
     cleanCurrentLayer();
     closeModal();
   };
 
+  //Add new layer to redux store
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
   };
 
+  //Set selected layer
   const handleChangeCurrentLayer = (event) => {
     const updatedLayer = {
       ...currentLayer,
@@ -47,8 +52,10 @@ export default function BufferModal({ open, closeModal }) {
     setCurrentLayer(updatedLayer);
   };
 
+  //Set buffer distance
   const handleChangeDistance = (event) => {
     const regex = /^[0-9\b]+$/;
+    //Chech that input value only consists of numbers
     if (regex.test(event.target.value)) {
       setInvalidDistance(false);
       const updatedLayer = {
@@ -61,6 +68,7 @@ export default function BufferModal({ open, closeModal }) {
     }
   };
 
+  // Set output layer name
   const handleChangeOutputFile = (event) => {
     const updatedLayer = {
       ...currentLayer,
@@ -69,6 +77,7 @@ export default function BufferModal({ open, closeModal }) {
     setCurrentLayer(updatedLayer);
   };
 
+  // Validate the input and return an alert if something is wrong
   const validateInput = () => {
     if (!currentLayer.layer.features.length) {
       snackBarAlert('Invalid input layer. Please select a layer.', 'error');
@@ -84,6 +93,7 @@ export default function BufferModal({ open, closeModal }) {
     }
   };
 
+  // Clear modal input
   const cleanCurrentLayer = () => {
     setCurrentLayer({
       layer: turf.featureCollection([]),
@@ -92,20 +102,23 @@ export default function BufferModal({ open, closeModal }) {
     });
   };
 
+  // Add new buffer layer
   const addBufferLayer = () => {
-    let success = Boolean(
+    // Check if all input values are set
+    let check = Boolean(
       currentLayer.layer.features.length &&
         !invalidDistance &&
         currentLayer.output
     );
-    switch (success) {
+    switch (check) {
       case true:
         setLoading(true);
         setTimeout(() => {
+          // Try to calculate buffer
           try {
-            const nextKey = layers.slice(-1)[0].key + 1;
-            const bufferLayer = bufferCalc(currentLayer, nextKey);
-            handleAddLayer(bufferLayer);
+            const nextKey = layers.slice(-1)[0].key + 1; //Get next available key
+            const bufferLayer = bufferCalc(currentLayer, nextKey); //Buffer calculation function
+            handleAddLayer(bufferLayer); //Add buffer layer
             setLoading(false);
             snackBarAlert(
               'Successfully created ' + currentLayer.output,
@@ -113,6 +126,7 @@ export default function BufferModal({ open, closeModal }) {
             );
             handleCloseModal();
           } catch (error) {
+            //Handle error
             console.log(error);
             setLoading(false);
           }
@@ -152,6 +166,7 @@ export default function BufferModal({ open, closeModal }) {
         >
           <InputLabel>Choose a Layer</InputLabel>
           <Select label="Choose a Layer" onChange={handleChangeCurrentLayer}>
+            {/* Loop through added layers */}
             {layers
               ? layers.map((layer) => {
                   return (
@@ -162,6 +177,7 @@ export default function BufferModal({ open, closeModal }) {
                 })
               : null}
           </Select>
+          {/* Distance input field */}
           <TextField
             error={invalidDistance}
             onChange={handleChangeDistance}
@@ -170,6 +186,7 @@ export default function BufferModal({ open, closeModal }) {
             label="Distance [m]"
             variant="standard"
           />
+          {/* Output name field */}
           <TextField
             style={{ marginTop: 10 }}
             value={currentLayer.output}
@@ -189,6 +206,7 @@ export default function BufferModal({ open, closeModal }) {
         >
           <div>
             {loading ? (
+              // Loading component
               <CircularProgress size={30} style={{ marginRight: 10 }} />
             ) : (
               <Button

@@ -1,15 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Redux slice for adding, removing and updating layers
 const layersSlice = createSlice({
   name: 'layers',
-  initialState: [],
+  initialState: [], // Set initial state (Array)
+  // Reducers
   reducers: {
+    // Add layer to redux store
     addLayer: (state, action) => {
       state.push(action.payload);
     },
+    // Remove layer from redux store
     removeLayer: (state, action) => {
       return state.filter((layer) => layer.key !== action.payload);
     },
+    // Update layer
     updateLayer: (state, action) => {
       const layerIndex = state.findIndex(
         (layer) => layer.key === action.payload.key
@@ -18,13 +23,10 @@ const layersSlice = createSlice({
         state[layerIndex] = action.payload;
       }
     },
-    getLayers: (state) => {
-      return state;
-    },
   },
 });
 
-export const { addLayer, removeLayer, updateLayer, getLayers } =
-  layersSlice.actions;
-
+// Export redux actions
+export const { addLayer, removeLayer, updateLayer } = layersSlice.actions;
+// Export redux reducers
 export default layersSlice.reducer;

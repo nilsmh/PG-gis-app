@@ -1,3 +1,4 @@
+// Common styling for all modals
 export default {
   position: 'absolute',
   top: '50%',

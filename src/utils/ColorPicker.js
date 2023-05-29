@@ -9,16 +9,21 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updateLayer } from '../redux/layers-slice';
 
 export default function ColorPicker({ open, handleCloseDialog, layerToEdit }) {
-  const [sketchPickerColor, setSketchPickerColor] = useState(layerToEdit.color);
-  const dispatch = useDispatch();
+  // Set the color from the Sketch Picker
+  const [sketchPickerColor, setSketchPickerColor] = useState(layerToEdit.color); // Default color is existing color of the layer
+  //Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  //Dispatch function to dispatch to redux store
+  const dispatch = useDispatch();
+  // Find the right layer to edit
   const selectedLayer = layers.find((layer) => layer.key === layerToEdit.key);
 
-  // Update an existing layer in the store
+  // Update the layer in the redux store
   const handleUpdateLayer = (updatedLayer) => {
     dispatch(updateLayer(updatedLayer));
   };
 
+  // Update the layer with the new color
   const updateLayerColor = () => {
     const color = sketchPickerColor;
     const updatedLayer = {
@@ -33,11 +38,9 @@ export default function ColorPicker({ open, handleCloseDialog, layerToEdit }) {
     <Dialog open={open}>
       <DialogTitle>Change the color of the layer</DialogTitle>
       <DialogContent>
-        <div
-          className="App"
-          style={{ display: 'flex', justifyContent: 'space-around' }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <div className="sketchpicker">
+            {/* Sketch Picker */}
             <SketchPicker
               onChange={(color) => {
                 setSketchPickerColor(color.hex);

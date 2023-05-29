@@ -16,37 +16,46 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Icon } from '@iconify/react';
 import modalStyle from '../utils/modalStyle';
 
+// Modal styling
 const style = { ...modalStyle, height: 300 };
 
+// Feature Extractor Operations
 const operations = ['=', '>', '<'];
 
 export default function FeatureExtractor({ open, closeModal }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //Loading calculation state
   const [currentLayer, setCurrentLayer] = useState();
   const [outputName, setOutputName] = useState('');
+  // Name and properties of the selected layer
   const [featureExtractorOption, setFeatureExtractorOption] = useState({
     name: '',
     properties: [],
   });
+  // State with property type, extract operation and extract value
   const [featureExtractValues, setFeatureExtractValue] = useState({
     property: '',
     operation: '',
     value: '',
   });
+  // Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  // Dispatch function to dispatch to redux store
   const dispatch = useDispatch();
   const handleCloseModal = () => {
     cleanCurrentLayer();
     closeModal();
   };
 
+  // Get layer name and layer properties layer is selected
   useEffect(() => {
     if (currentLayer) {
       featureExtractorOption.name = currentLayer.name;
-      let updatedProps = [];
+      let updatedProps = []; //Temp list with properties
+      // Loop through each geometry to extract the properties
       currentLayer.geom.features.map((geom) => {
         let props = Object.keys(geom.properties);
 
+        // Loop through each property and add to the temp list if not already included
         props.map((prop) => {
           if (!updatedProps.includes(prop)) {
             updatedProps.push(prop);
@@ -54,26 +63,30 @@ export default function FeatureExtractor({ open, closeModal }) {
         });
       });
 
+      // Set properties to state
       setFeatureExtractorOption((prev) => ({
         ...prev,
         properties: updatedProps,
       }));
-      console.log(featureExtractorOption);
     }
   }, [currentLayer]);
 
+  // Add new layer to redux store
   const handleAddLayer = (newLayer) => {
     dispatch(addLayer(newLayer));
   };
 
-  const handleChangeLayerToEdit = (event) => {
+  // Set selected layer
+  const handleChangeCurrentLayer = (event) => {
     setCurrentLayer(event.target.value);
   };
 
+  // Set output layer name
   const handleChangeOutputName = (event) => {
     setOutputName(event.target.value);
   };
 
+  // Set extract property
   const handleChangeExtractProperty = (e) => {
     const updatedExtractProperty = {
       ...featureExtractValues,
@@ -82,6 +95,7 @@ export default function FeatureExtractor({ open, closeModal }) {
     setFeatureExtractValue(updatedExtractProperty);
   };
 
+  // Set extract operation
   const handleChangeExtractOperation = (e) => {
     const updatedExtractOperation = {
       ...featureExtractValues,
@@ -90,6 +104,7 @@ export default function FeatureExtractor({ open, closeModal }) {
     setFeatureExtractValue(updatedExtractOperation);
   };
 
+  // Set extract value
   const handleChangeExtractValue = (e) => {
     const updatedExtractValue = {
       ...featureExtractValues,
@@ -98,68 +113,7 @@ export default function FeatureExtractor({ open, closeModal }) {
     setFeatureExtractValue(updatedExtractValue);
   };
 
-  const cleanCurrentLayer = () => {
-    setCurrentLayer();
-    setOutputName('');
-    setFeatureExtractorOption({
-      name: '',
-      properties: [],
-    });
-    setFeatureExtractValue({
-      property: '',
-      operation: '',
-      value: '',
-    });
-  };
-
-  const extractFeatures = () => {
-    const success = Boolean(
-      featureExtractValues.property &&
-        featureExtractValues.operation &&
-        featureExtractValues.value
-    );
-
-    switch (success) {
-      case true:
-        setLoading(true);
-        setTimeout(() => {
-          try {
-            const nextKey = layers.slice(-1)[0].key + 1;
-            const featureExtractedLayer = featureExtractorCalc(
-              currentLayer,
-              outputName,
-              featureExtractValues,
-              nextKey
-            );
-            if (!featureExtractedLayer) {
-              setLoading(false);
-
-              snackBarAlert(
-                'There are no features matching your input',
-                'error'
-              );
-            } else {
-              handleAddLayer(featureExtractedLayer);
-              setLoading(false);
-
-              snackBarAlert(
-                'Successfully extracted features from  ' + currentLayer.name,
-                'success'
-              );
-              handleCloseModal();
-            }
-          } catch (error) {
-            console.log(error);
-            setLoading(false);
-          }
-        }, 1000);
-        break;
-      case false:
-        validateInput();
-        break;
-    }
-  };
-
+  // Validate the input and return an alert if something is wrong
   const validateInput = () => {
     if (!currentLayer) {
       snackBarAlert('Invalid input layer. Please select a layer.', 'error');
@@ -181,6 +135,71 @@ export default function FeatureExtractor({ open, closeModal }) {
     }
     if (!featureExtractValues.value) {
       snackBarAlert('Invalid value input. Please write a value.', 'error');
+    }
+  };
+
+  // Clear modal input
+  const cleanCurrentLayer = () => {
+    setCurrentLayer();
+    setOutputName('');
+    setFeatureExtractorOption({
+      name: '',
+      properties: [],
+    });
+    setFeatureExtractValue({
+      property: '',
+      operation: '',
+      value: '',
+    });
+  };
+
+  // Add new extracted layer
+  const extractFeatures = () => {
+    // Check if all input values are set
+    const check = Boolean(
+      featureExtractValues.property &&
+        featureExtractValues.operation &&
+        featureExtractValues.value
+    );
+    switch (check) {
+      case true:
+        setLoading(true);
+        setTimeout(() => {
+          // Try to extract feature layer
+          try {
+            const nextKey = layers.slice(-1)[0].key + 1; //Get next available key
+            const featureExtractedLayer = featureExtractorCalc(
+              currentLayer,
+              outputName,
+              featureExtractValues,
+              nextKey
+            ); // Feature Extractor function
+            // Check if extracted layer is true
+            if (!featureExtractedLayer) {
+              setLoading(false);
+              snackBarAlert(
+                'There are no features matching your input',
+                'error'
+              );
+            } else {
+              handleAddLayer(featureExtractedLayer); // Add new extracted layer
+              setLoading(false);
+              snackBarAlert(
+                'Successfully extracted features from  ' + currentLayer.name,
+                'success'
+              );
+              handleCloseModal();
+            }
+          } catch (error) {
+            // Handle error
+            console.log(error);
+            setLoading(false);
+          }
+        }, 1000);
+        break;
+      case false:
+        validateInput();
+        break;
     }
   };
 
@@ -214,8 +233,9 @@ export default function FeatureExtractor({ open, closeModal }) {
           <Select
             value={currentLayer}
             label="Choose a Layer A"
-            onChange={handleChangeLayerToEdit}
+            onChange={handleChangeCurrentLayer}
           >
+            {/* Loop through added layers */}
             {layers
               ? layers.map((layer) => {
                   return (
@@ -238,11 +258,13 @@ export default function FeatureExtractor({ open, closeModal }) {
             height: 56,
           }}
         >
+          {/* Select property field */}
           <Select
             value={featureExtractValues.property}
             onChange={handleChangeExtractProperty}
             style={{ width: 200 }}
           >
+            {/* Loop through and display each property */}
             {featureExtractorOption.properties.map((prop, index) => {
               return (
                 <MenuItem key={index} value={prop}>
@@ -251,6 +273,7 @@ export default function FeatureExtractor({ open, closeModal }) {
               );
             })}
           </Select>
+          {/* Select operation field */}
           <Select
             value={featureExtractValues.operation}
             onChange={handleChangeExtractOperation}
@@ -258,6 +281,7 @@ export default function FeatureExtractor({ open, closeModal }) {
               width: 100,
             }}
           >
+            {/* Loop through and display each operation */}
             {operations.map((opt, index) => {
               return (
                 <MenuItem key={index} value={opt}>
@@ -266,6 +290,7 @@ export default function FeatureExtractor({ open, closeModal }) {
               );
             })}
           </Select>
+          {/* Select value field */}
           <TextField
             style={{ width: 200 }}
             value={featureExtractValues.value}
@@ -274,6 +299,7 @@ export default function FeatureExtractor({ open, closeModal }) {
           />
         </FormControl>
         <FormControl required fullWidth={true}>
+          {/* Output name field */}
           <TextField
             style={{ marginTop: 10 }}
             value={outputName}
@@ -292,6 +318,7 @@ export default function FeatureExtractor({ open, closeModal }) {
         >
           <div>
             {loading ? (
+              // Loading component
               <CircularProgress size={30} style={{ marginRight: 10 }} />
             ) : (
               <Button
@@ -300,7 +327,7 @@ export default function FeatureExtractor({ open, closeModal }) {
                 onClick={extractFeatures}
                 color="success"
               >
-                Calculate
+                Extract
               </Button>
             )}
           </div>

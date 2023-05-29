@@ -10,18 +10,24 @@ import { updateLayer } from '../redux/layers-slice';
 
 export default function NameChanger({ open, handleCloseDialog, layerToEdit }) {
   const [newLayerName, setNewLayerName] = useState('');
-  const dispatch = useDispatch();
+  //Fetch layers from redux store
   const layers = useSelector((state) => state.layers);
+  //Dispatch function to dispatch to redux store
+  const dispatch = useDispatch();
+  // Find the right layer to edit
   const selectedLayer = layers.find((layer) => layer.key === layerToEdit.key);
 
+  // Update the layer in the redux store
   const handleUpdateLayer = (updatedLayer) => {
     dispatch(updateLayer(updatedLayer));
   };
 
+  // Set the new name for the layer
   const handleChangeLayerName = (event) => {
     setNewLayerName(event.target.value);
   };
 
+  // Update the layer with the new name
   const updateLayerName = () => {
     const name = newLayerName;
     const updatedLayer = {
@@ -36,6 +42,7 @@ export default function NameChanger({ open, handleCloseDialog, layerToEdit }) {
     <Dialog open={open}>
       <DialogTitle>Change the name of the layer</DialogTitle>
       <DialogContent>
+        {/* New name field */}
         <TextField
           autoFocus
           margin="dense"

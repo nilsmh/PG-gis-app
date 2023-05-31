@@ -25,7 +25,7 @@ const tools = [
   },
   { tool: 'union', name: 'Union', icon: 'union' },
   { tool: 'clip', name: 'Clip', icon: 'split' },
-  { tool: 'area', name: 'Area', icon: 'measure' },
+  // { tool: 'area', name: 'Area', icon: 'measure' },
 ];
 
 export default function GPTools({ changeExpandedList }) {
@@ -254,10 +254,10 @@ export default function GPTools({ changeExpandedList }) {
         open={openModal.clip}
         closeModal={() => handleCloseModal('clip')}
       />
-      <AreaModal
+      {/* <AreaModal
         open={openModal.area}
         closeModal={() => handleCloseModal('area')}
-      />
+      /> */}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import difference from '@turf/difference';
 import createLayer from './CreateLayer';
-import booleanOverlap from '@turf/boolean-overlap';
 import booleanDisjoint from '@turf/boolean-disjoint';
+import booleanIntersects from '@turf/boolean-intersects';
 import dissolveLayers from './DissolveGeom';
 
 // Difference calculation
@@ -28,7 +28,7 @@ const differenceCalc = (layerToCalc, nextKey) => {
     // Loop through the second layer
     dissolvedLayerB.features.forEach((poly2) => {
       // Check if the polygons intersect
-      if (booleanOverlap(poly1, poly2)) {
+      if (booleanIntersects(poly1, poly2)) {
         // Add polygon 2 to the intersection Map to the list of intersection geometries with polygon 1
         intersectionMap.get(poly1).push(poly2);
       }

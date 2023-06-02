@@ -100,43 +100,28 @@ export default function MapView() {
           );
         }
         // Create a popup, but don't add it to the map yet.
-        const popup = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false,
-        });
-
-        map.on('mouseenter', layer.key.toString(), (e) => {
-          // Change the cursor style as a UI indicator.
-          if (e.features[0].properties.area) {
-            map.getCanvas().style.cursor = 'pointer';
-            const coordinates = e.lngLat.wrap();
-            const description = e.features[0].properties.type;
-            // const description =
-            //   'Type dyr: ' +
-            //   e.features[0].properties.type +
-            //   '<br />' +
-            //   'Areal: ' +
-            //   e.features[0].properties.area.toFixed() / 1000000 +
-            //   '\u33A2';
-            // +
-            // 'Antall observasjoner: ' +
-            // e.features[0].properties.observasjoner;
-
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
-          }
-        });
-
-        map.on('mouseleave', layer.key.toString(), () => {
-          map.getCanvas().style.cursor = '';
-          popup.remove();
-        });
+        // const popup = new mapboxgl.Popup({
+        //   closeButton: false,
+        //   closeOnClick: false,
+        // });
+        // // Popup with type of animal when mouse enter geometry
+        // map.on('mouseenter', layer.key.toString(), (e) => {
+        //   // Check if the geometry includes a property of which type of animal
+        //   if (e.features[0].properties.type) {
+        //     map.getCanvas().style.cursor = 'pointer';
+        //     const coordinates = e.lngLat.wrap(); // Get coordinates
+        //     const description = e.features[0].properties.type; // Text to show in popup
+        //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        //       coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        //     }
+        //     popup.setLngLat(coordinates).setHTML(description).addTo(map);
+        //   }
+        // });
+        // // Remove popup when mouse leaves geometry
+        // map.on('mouseleave', layer.key.toString(), () => {
+        //   map.getCanvas().style.cursor = '';
+        //   popup.remove();
+        // });
       });
       return () => {
         map.remove();

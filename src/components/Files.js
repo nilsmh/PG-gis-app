@@ -214,7 +214,7 @@ export default function Files({ expanded }) {
         <List
           sx={{
             width: '100%',
-            maxHeight: expanded ? 205 : 545,
+            maxHeight: expanded ? 255 : 545,
             overflow: 'scroll',
           }}
         >

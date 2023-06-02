@@ -29,6 +29,16 @@ const unionCalc = (layerToCalc, nextKey) => {
         const unions = union(poly1, poly2);
         // Check if the unions is not null
         if (unions !== null) {
+          // Check if property type is undefined. Add the right property
+          // let properties;
+          // if (poly1.properties.type === 'undefined') {
+          //   console.log(poly1.properties.type);
+          //   properties = poly2.properties;
+          // } else if (poly2.properties.type === 'undefined') {
+          //   properties = poly1.properties;
+          // } else {
+          //   properties = { ...poly1.properties, ...poly2.properties };
+          // }
           // Create an union geom
           const unionLayer = {
             type: 'Feature',

@@ -67,26 +67,6 @@ const differenceCalc = (layerToCalc, nextKey) => {
 
   // Return a complete layer
   return createLayer(nextKey, layerToCalc.output, newDifferenceLayer);
-
-  // return differenceList;
-
-  // layerToCalc.layerA.features.forEach((poly1) => {
-  //   layerToCalc.layerB.features.forEach((poly2) => {
-  //     newDifferenceLayer.features.push(difference(poly1, poly2));
-  //   });
-  // });
-
-  // newDifferenceLayer.features = newDifferenceLayer.features.filter(
-  //   (f) => f != null
-  // );
-  // if (
-  //   checkEqualGeometry(
-  //     layerToCalc.layerA.features[0].geometry.coordinates[0],
-  //     newDifferenceLayer.features[0].geometry.coordinates[0]
-  //   )
-  // ) {
-  //   return false;
-  // }
 };
 
 export default differenceCalc;

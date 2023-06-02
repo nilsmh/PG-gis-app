@@ -4,7 +4,9 @@ import getGeomType from './getGeomType';
 import pointsWithinPolygon from '@turf/points-within-polygon';
 import lineSplit from '@turf/line-split';
 import polygonToLine from '@turf/polygon-to-line';
-import isLineSegmentWithinPolygon from './isLineSegmentWithinPolygon';
+import booleanCrosses from '@turf/boolean-crosses';
+import booleanContains from '@turf/boolean-contains';
+import booleanDisjoint from '@turf/boolean-disjoint';
 
 // Clip function
 const clipFunction = (layerToClip, clipArea, nextKey) => {
@@ -38,24 +40,23 @@ const clipFunction = (layerToClip, clipArea, nextKey) => {
     layerToClip.geom.features.forEach((line) => {
       // Loop throught the clipping layer
       clipArea.features.forEach((poly) => {
-        //Split the lines where they intersect the polygon border lines
-        //Transform Polygon layer to lines.
-        let splitLines = lineSplit(line, polygonToLine(poly));
-
-        //If line does not intersect with polygon border, it is either
-        //completely inside or completely outside
-        if (splitLines.features.length === 0) {
-          if (isLineSegmentWithinPolygon(line, clipArea)) {
-            newClipLayer.features.push(line);
-          }
+        // Check if line is completely outside of clipping polygon
+        if (booleanDisjoint(line, poly)) {
+          return;
         }
-
-        //For all lines that intersect the polygon area, keep the parts that are inside
-        splitLines.features.forEach((lineSegment) => {
-          if (isLineSegmentWithinPolygon(lineSegment, clipArea)) {
-            newClipLayer.features.push(lineSegment);
-          }
-        });
+        // Check if line intersects the clipping polygon
+        if (!booleanContains(poly, line) || booleanCrosses(poly, line)) {
+          let splitLines = lineSplit(line, polygonToLine(poly)); // Split line to the polygon
+          // Get the line segments that are inside of the clipping polygon
+          const insideSegments = splitLines.features.filter((seg) =>
+            booleanContains(poly, seg)
+          );
+          // Add the inside line segments to the list
+          newClipLayer.features.push(...insideSegments);
+        } else {
+          // Line is completely inside the clipping polygon
+          newClipLayer.features.push(line);
+        }
       });
     });
   }
@@ -63,6 +64,7 @@ const clipFunction = (layerToClip, clipArea, nextKey) => {
   //Remove null or undefined features:
   newClipLayer.features = newClipLayer.features.filter((f) => f != null);
 
+  // New clipped layer is empty
   if (newClipLayer.features.length === 0) {
     return null;
   }

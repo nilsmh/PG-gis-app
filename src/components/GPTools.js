@@ -8,7 +8,6 @@ import BufferModal from './BufferModal';
 import TwoLayerAnalysisModal from './TwoLayerAnalysisModal';
 import ClipModal from './ClipModal';
 import FeatureExtractor from './FeatureExtractorModal';
-import AreaModal from './AreaModal';
 import { Icon } from '@iconify/react';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -25,7 +24,6 @@ const tools = [
   },
   { tool: 'union', name: 'Union', icon: 'union' },
   { tool: 'clip', name: 'Clip', icon: 'split' },
-  // { tool: 'area', name: 'Area', icon: 'measure' },
 ];
 
 export default function GPTools({ changeExpandedList }) {
@@ -37,7 +35,6 @@ export default function GPTools({ changeExpandedList }) {
     featureExtractor: false,
     union: false,
     clip: false,
-    area: false,
   });
   const [GPTool, setGPtool] = useState(''); //Set the right GP-tool
   const [isExpanded, setIsExpanded] = useState(true);
@@ -96,13 +93,6 @@ export default function GPTools({ changeExpandedList }) {
           clip: true,
         });
         break;
-      // Area modal
-      case tools[6].tool:
-        setOpenModal({
-          ...openModal,
-          area: true,
-        });
-        break;
     }
   };
   //Close modal
@@ -152,12 +142,6 @@ export default function GPTools({ changeExpandedList }) {
         setOpenModal({
           ...openModal,
           clip: false,
-        });
-        break;
-      case tools[6].tool:
-        setOpenModal({
-          ...openModal,
-          area: false,
         });
         break;
     }
@@ -254,10 +238,6 @@ export default function GPTools({ changeExpandedList }) {
         open={openModal.clip}
         closeModal={() => handleCloseModal('clip')}
       />
-      {/* <AreaModal
-        open={openModal.area}
-        closeModal={() => handleCloseModal('area')}
-      /> */}
     </div>
   );
 }

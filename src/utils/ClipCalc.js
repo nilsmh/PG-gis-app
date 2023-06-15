@@ -2,6 +2,7 @@ import intersect from '@turf/intersect';
 import createLayer from './CreateLayer';
 import getGeomType from './getGeomType';
 import pointsWithinPolygon from '@turf/points-within-polygon';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import lineSplit from '@turf/line-split';
 import polygonToLine from '@turf/polygon-to-line';
 import booleanCrosses from '@turf/boolean-crosses';
@@ -25,14 +26,28 @@ const clipFunction = (layerToClip, clipArea, nextKey) => {
       // Loop throught the clipping layer
       clipArea.features.forEach((poly2) => {
         // Add the intersection between the two polygons to the new clipped layer
-        newClipLayer.features.push(intersect(poly1, poly2));
+        const intersection = intersect(poly1, poly2);
+        if (intersection !== null) {
+          newClipLayer.features.push(intersection);
+        }
       });
     });
   }
   // Check if geometry is a point
   if (type === 'Point') {
-    // Returns the points within the clipping layer
-    newClipLayer = pointsWithinPolygon(layerToClip, clipArea);
+    // Loop throught the layer to clip
+    layerToClip.geom.features.forEach((p) => {
+      // Mark point as not added
+      let pointAdded = false;
+      // Loop throught the clipping layer
+      clipArea.features.forEach((poly) => {
+        // If point is within polygon segment and not yet added
+        if (booleanPointInPolygon(p, poly) && !pointAdded) {
+          newClipLayer.features.push(p); //Add the point to the layer
+          pointAdded = true; // Mark point as added
+        }
+      });
+    });
   }
   // Check if geometry is a linestring or a multilinestring
   if (type === 'LineString' || type === 'MultiLineString') {

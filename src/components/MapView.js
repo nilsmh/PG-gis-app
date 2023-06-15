@@ -56,7 +56,6 @@ export default function MapView() {
               'circle-color': layer.color,
               'circle-opacity': 0.8,
             },
-            filter: ['==', '$type', 'Point'],
           });
           // Set visibility
           map.setLayoutProperty(
@@ -74,7 +73,6 @@ export default function MapView() {
               'fill-color': layer.color,
               'fill-opacity': 0.8,
             },
-            filter: ['==', '$type', 'Polygon'],
           });
           map.setLayoutProperty(
             layer.key.toString(),
@@ -91,7 +89,6 @@ export default function MapView() {
               'line-color': layer.color,
               'line-width': 2,
             },
-            filter: ['==', '$type', 'LineString'],
           });
           map.setLayoutProperty(
             layer.key.toString(),
@@ -99,29 +96,6 @@ export default function MapView() {
             determineVisibility(layer)
           );
         }
-        // Create a popup, but don't add it to the map yet.
-        // const popup = new mapboxgl.Popup({
-        //   closeButton: false,
-        //   closeOnClick: false,
-        // });
-        // // Popup with type of animal when mouse enter geometry
-        // map.on('mouseenter', layer.key.toString(), (e) => {
-        //   // Check if the geometry includes a property of which type of animal
-        //   if (e.features[0].properties.type) {
-        //     map.getCanvas().style.cursor = 'pointer';
-        //     const coordinates = e.lngLat.wrap(); // Get coordinates
-        //     const description = e.features[0].properties.type; // Text to show in popup
-        //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        //       coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        //     }
-        //     popup.setLngLat(coordinates).setHTML(description).addTo(map);
-        //   }
-        // });
-        // // Remove popup when mouse leaves geometry
-        // map.on('mouseleave', layer.key.toString(), () => {
-        //   map.getCanvas().style.cursor = '';
-        //   popup.remove();
-        // });
       });
       return () => {
         map.remove();

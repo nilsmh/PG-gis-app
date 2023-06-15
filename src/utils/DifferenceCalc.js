@@ -39,8 +39,6 @@ const differenceCalc = (layerToCalc, nextKey) => {
   Array.from(intersectionMap.entries()).forEach(
     ([polygon, intersectingFeatures]) => {
       let diff = polygon;
-      // If the polygons are completely covered, booleanOverlap does not count it,
-      // the polygon will have length 0
       if (intersectingFeatures.length === 0) {
         // Need to check if the geometry is disjoint from all polygons in dissolvedLayerB,
         // then it is an outlier and needs to be included

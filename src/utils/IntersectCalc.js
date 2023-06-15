@@ -33,18 +33,6 @@ const intersectCalc = (layerToCalc, nextKey) => {
             (poly) => !booleanOverlap(intersection, poly)
           )
         ) {
-          // Check if property type is undefined. Add the right property
-          // let properties;
-          // if (poly1.properties.type === 'undefined') {
-          //   console.log(poly1.properties.type);
-          //   properties = poly2.properties;
-          // } else if (poly2.properties.type === 'undefined') {
-          //   properties = poly1.properties;
-          // } else {
-          //   properties = { ...poly1.properties, ...poly2.properties };
-          // }
-          // console.log(properties);
-
           // Create an intersection geom
           const intersectionGeom = {
             type: 'Feature',

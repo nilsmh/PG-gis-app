@@ -83,18 +83,28 @@ export default function Files({ expanded }) {
     e.preventDefault();
     setUploadedFileNames([]); // Clear the uploaded file names list
     const selectedFiles = e.target.files; // Selected files
+    let typeJSON = true;
     // Loop through each selected file
     Array.from(selectedFiles).forEach((f) => {
-      // Check if file is already uploaded
-      if (layers.findIndex((l) => l.name === f.name) !== -1) {
-        // Add file name to the uploaded file names list
-        setUploadedFileNames((prevUploadedFileNames) => [
-          ...prevUploadedFileNames,
-          f.name,
-        ]);
+      // Check if file is of type JSON
+      if (f.type !== 'application/json') {
+        typeJSON = false;
+      }
+      // File is of type JSON
+      if (typeJSON) {
+        // Check if file is already uploaded
+        if (layers.findIndex((l) => l.name === f.name) !== -1) {
+          // Add file name to the uploaded file names list
+          setUploadedFileNames((prevUploadedFileNames) => [
+            ...prevUploadedFileNames,
+            f.name,
+          ]);
+        } else {
+          // Add file to the file list
+          setFileList((prevFile) => [...prevFile, f]);
+        }
       } else {
-        // Add file to the file list
-        setFileList((prevFile) => [...prevFile, f]);
+        alert(`Unsupported file type: ${f.name}`);
       }
     });
   };
@@ -103,7 +113,6 @@ export default function Files({ expanded }) {
   const readFiles = () => {
     // Spread-operation to flatten the list of files if it exists
     const files = fileList ? [...fileList] : [];
-
     // Set the right key
     let key = 1;
     if (layers.length > 0) {
@@ -196,7 +205,7 @@ export default function Files({ expanded }) {
       >
         <div>
           <Typography variant="subtitle2">
-            Upload your geojson files here:
+            Upload your JSON files here:
           </Typography>
         </div>
         {/* Upload files */}
